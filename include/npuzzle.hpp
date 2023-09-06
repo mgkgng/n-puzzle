@@ -1,3 +1,5 @@
 #pragma once
 
-#include <iostream>
+#include "puzzle.hpp"
+
+std::unique_ptr<Puzzle> parse();
