@@ -11,17 +11,57 @@
 
 using namespace std;
 
-const int N = 3;
-vector<vector<int>> goalState = {{1, 2, 3}, {4, 0, 5}, {6, 7, 8}};
+int N = 3;
+vector<vector<int>> goalState;
 
-vector<vector<int>> createGoalState(int size) {
-    // TODO to use std::iota
-    auto res = vector<vector<int>>(size, vector<int>(size, 0));
-    for (int i = 0; i < size; i++)
-        for (int j = 0; j < size; j++)
-            res[i][j]= i * size + j + 1;
-    res[size - 1][size - 1] = 0;
+void printGrid(const std::vector<std::vector<int>>& grid) {
+    for (const auto& row : grid) {
+        for (int val : row) {
+            std::cout << val << ' ';
+        }
+        std::cout << std::endl;
+    }
+}
+
+std::vector<std::vector<int>> createSnail(int size) {
+    auto res = std::vector<std::vector<int>>(size, std::vector<int>(size, 0));
+    int val = 1; // The value to be inserted
+    int rowStart = 0, rowEnd = size - 1;
+    int colStart = 0, colEnd = size - 1;
+
+    while (rowStart <= rowEnd && colStart <= colEnd) {
+        for (int j = colStart; j <= colEnd; ++j) {
+            res[rowStart][j] = val++;
+        }
+        ++rowStart;
+
+        for (int i = rowStart; i <= rowEnd; ++i) {
+            res[i][colEnd] = val++;
+        }
+        --colEnd;
+
+        for (int j = colEnd; j >= colStart; --j) {
+            res[rowEnd][j] = val++;
+        }
+        --rowEnd;
+
+        for (int i = rowEnd; i >= rowStart; --i) {
+            res[i][colStart] = val++;
+        }
+        ++colStart;
+    }
+
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            if (res[i][j] == size * size) {
+                res[i][j] = 0;
+                printGrid(res);
+                return res;
+            }
+        }
+    }
     return res;
+
 }
 
 struct pState {
@@ -125,6 +165,10 @@ int main(int ac, char *av[]) {
 
     pState initialState;
     initialState.board = puzzle->grid;
+
+    N = puzzle->size;
+    goalState = createSnail(puzzle->size);
+    std::cout << "so " << getNumberAt(1, 1, puzzle->size) << endl;
 
     int hChoice;
     cout << "Choose a heuristic function (1->Manhattan, 2->Hamming, 3->Euclidean): " << endl;
