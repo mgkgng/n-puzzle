@@ -4,13 +4,19 @@
 // TODO understand algorithm and figure out how to parse string into Graph
 // For now, I went for the obvious way, parsing the puzzle into a grid.
 
-std::unique_ptr<Puzzle> parse() {
+std::unique_ptr<Puzzle> parse(const std::string &filename) {
     std::unique_ptr<Puzzle> res;
     std::string line, puzzleStr;
     int rowCount = 0;
 
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Could not open file: " << filename << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+
     // Treat line by line
-    while (std::getline(std::cin, line)) {
+    while (std::getline(file, line)) {        
         if (line[0] == '#') continue; // commentary
 
         // Puzzle not yet initialized, which means the first line after commentaries,
@@ -29,4 +35,3 @@ std::unique_ptr<Puzzle> parse() {
     return res;
 }
 
-    

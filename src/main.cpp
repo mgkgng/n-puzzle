@@ -12,7 +12,17 @@
 using namespace std;
 
 const int N = 3;
-vector<vector<int>> goalState = {{1, 2, 3}, {4, 5, 6}, {7, 8, 0}};
+vector<vector<int>> goalState = {{1, 2, 3}, {4, 0, 5}, {6, 7, 8}};
+
+vector<vector<int>> createGoalState(int size) {
+    // TODO to use std::iota
+    auto res = vector<vector<int>>(size, vector<int>(size, 0));
+    for (int i = 0; i < size; i++)
+        for (int j = 0; j < size; j++)
+            res[i][j]= i * size + j + 1;
+    res[size - 1][size - 1] = 0;
+    return res;
+}
 
 struct pState {
     vector<vector<int>> board;
@@ -61,6 +71,7 @@ bool move(int dx, int dy, pState &s) {
         return false;
 }
 
+// Threshold = bound
 int search(pState &s, int g, int bound, int hChoice, vector<char> &solution) {
     int f = g + hFunction(s, hChoice);
 
@@ -105,21 +116,20 @@ int IDAstar(pState &initialState, int hChoice, vector<char> &solution) {
 }
 // launch 'make && <test ./n-puzzle'
 
-int main() {
+int main(int ac, char *av[]) {
+    // Smart Pointer
+    std::unique_ptr<Puzzle> puzzle = parse(std::string(av[1]));
 
-    //// Smart Pointer
-    //std::unique_ptr<Puzzle> puzzle = parse();
-
-    //// Check if it is well parsed
-    //std::cout << *puzzle << std::endl;
+    // Check if it is well parsed
+    std::cout << *puzzle << std::endl;
 
     pState initialState;
-    initialState.board = {{8, 1, 3}, {4, 0, 2}, {7, 6, 5}};
+    initialState.board = puzzle->grid;
 
     int hChoice;
-    cout << "Choose a heuristic function (1->Manhattan, 2->Hamming, 3->Euclidean): ";
+    cout << "Choose a heuristic function (1->Manhattan, 2->Hamming, 3->Euclidean): " << endl;
     cin >> hChoice;
-    cout << endl;
+    cout << "Starting n-puzzle..." << endl;
 
     vector<char> solution;
 
@@ -128,7 +138,6 @@ int main() {
     int minMoves = IDAstar(initialState, hChoice, solution);
 
     auto endTime = chrono::high_resolution_clock::now();
-
     auto duration = chrono::duration_cast<chrono::milliseconds>(endTime - startTime);
 
     if (minMoves == -1)
