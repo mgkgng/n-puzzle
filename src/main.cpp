@@ -1,4 +1,5 @@
 #include "npuzzle.hpp"
+#include "HeuristicFunctions.hpp"
 
 // launch 'make && <test ./n-puzzle'
 
