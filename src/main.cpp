@@ -13,6 +13,7 @@ using namespace std;
 
 int N = 3;
 vector<vector<int>> goalState;
+std::string goalString;
 
 void printGrid(const std::vector<std::vector<int>>& grid) {
     for (const auto& row : grid) {
@@ -80,13 +81,13 @@ bool isGoal(const pState &s) {
 int hFunction(const pState &s, int hChoice) {
     switch (hChoice) {
         case 1:
-            return Manhattan(s.board, N);
+            return Manhattan(s.board, N, goalState);
         case 2:
-            return Hamming(s.board, N);
+            return Hamming(s.board, N, goalState);
         case 3:
-            return Euclidean(s.board, N);
+            return Euclidean(s.board, N, goalState);
         default:
-            return Manhattan(s.board, N);
+            return Manhattan(s.board, N, goalState);
     }
 }
 
@@ -154,7 +155,16 @@ int IDAstar(pState &initialState, int hChoice, vector<char> &solution) {
         bound = nextBound;
     }
 }
-// launch 'make && <test ./n-puzzle'
+
+std::string gridToString(const std::vector<std::vector<int>>& grid) {
+    std::string result;
+    for (const auto& row : grid) {
+        for (const auto& element : row) {
+            result += std::to_string(element);
+        }
+    }
+    return result;
+}
 
 int main(int ac, char *av[]) {
     // Smart Pointer
@@ -168,7 +178,7 @@ int main(int ac, char *av[]) {
 
     N = puzzle->size;
     goalState = createSnail(puzzle->size);
-    std::cout << "so " << getNumberAt(1, 1, puzzle->size) << endl;
+    goalString = gridToString(goalState);
 
     int hChoice;
     cout << "Choose a heuristic function (1->Manhattan, 2->Hamming, 3->Euclidean): " << endl;
