@@ -1,32 +1,95 @@
 #pragma once
 
-#include <vector>
-#include <string>
-#include <iostream>
+#include <chrono>
+#include <cstdlib>
+#include <fstream>
 #include <iomanip>
+#include <iostream>
+#include <limits>
+#include <stack>
+#include <unordered_set>
+#include <vector>
+#include <sstream> 
+#include <string>
+
+using namespace std;
+
+#define VAL(x, max) ((x != max) ? x++ : 0) // The last number of the goal spiral should be 0
 
 class Puzzle {
     public:
         int size;
-        std::vector<std::vector<int>> grid;
+        vector<vector<int>> grid;
+        vector<vector<int>> goalGrid;
 
     Puzzle() {}
     Puzzle(int _size) {
         size = _size;
-        grid = std::vector<std::vector<int>>(_size, std::vector<int>(_size, 0));
+        grid = vector<vector<int>>(_size, vector<int>(_size, 0));
+        goalGrid = createSnail(size);
     }
     ~Puzzle() {}
 
-    friend std::ostream& operator<<(std::ostream& os, const Puzzle& p);
+    void printGrid(const vector<vector<int>>& grid) {
+        cout << "Solution grid:" << endl;
+        for (const auto& row : grid) {
+            for (int val : row)
+                cout << setw(4) << val;
+            cout << endl;
+        }
+    }
+
+    vector<vector<int>> createSnail(int size) {
+        auto res = vector<vector<int>>(size, vector<int>(size, 0));
+        int max = size * size;
+        int val = 1; // The value to be inserted
+        int rowStart = 0, rowEnd = size - 1;
+        int colStart = 0, colEnd = size - 1;
+
+        while (rowStart <= rowEnd && colStart <= colEnd) {
+            for (int j = colStart; j <= colEnd; ++j)
+                res[rowStart][j] = VAL(val, max);
+            ++rowStart;
+
+            for (int i = rowStart; i <= rowEnd; ++i)
+                res[i][colEnd] = VAL(val, max);
+            --colEnd;
+
+            for (int j = colEnd; j >= colStart; --j)
+                res[rowEnd][j] = VAL(val, max);
+            --rowEnd;
+
+            for (int i = rowEnd; i >= rowStart; --i)
+                res[i][colStart] = VAL(val, max);
+            ++colStart;
+        }
+        printGrid(res);
+        return res;
+    }
+
+    friend ostream& operator<<(ostream& os, const Puzzle& p);
 };
 
-inline std::ostream& operator<<(std::ostream& os, const Puzzle& p) {
-    os << "Puzzle size: " << p.size << std::endl;
+extern unique_ptr<Puzzle> puzzle;
+
+unique_ptr<Puzzle> parse(const string &filename);
+
+inline ostream& operator<<(ostream& os, const Puzzle& p) {
+    os << "Puzzle size: " << p.size << endl;
     for (const auto& row : p.grid) {
-        for (const auto& cell : row) {
-            os << std::setw(4) << cell;
-        }
-        os << std::endl;
+        for (const auto& cell : row)
+            os << setw(4) << cell;
+        os << endl;
     }
     return os;
+}
+
+inline vector<string> split(const string &str) {
+    istringstream iss(str);
+    vector<string> res;
+
+    string token;
+    while (iss >> token)
+        res.push_back(token);
+    return res;
 }
