@@ -48,7 +48,7 @@ static int search(pState &s, int g, int threshold, int hChoice, vector<char> &so
             }
             if (newThreshold < minNextThreshold) // Update the minimum threshold
                 minNextThreshold = newThreshold;
-            move(-dx[i], -dy[i], s); // Undo the move to restore the state to i
+            move(-dx[i], -dy[i], s); // Undo the move to restore the state to its previous state
         }
     }
 
