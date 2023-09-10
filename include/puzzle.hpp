@@ -11,23 +11,47 @@
 #include <vector>
 #include <sstream> 
 #include <string>
+#include <cmath>
+#include <map>
 
 using namespace std;
 
 #define VAL(x, max) ((x != max) ? x++ : 0) // The last number of the goal spiral should be 0
+
+struct pState {
+    vector<vector<int>> board;
+    int cost, hFunction;
+
+    bool operator==(const pState &other) const {
+        return board == other.board;
+    }
+};
+
+int hFunction(const pState &s, int hChoice);
+int IDAstar(pState &initialState, int hChoice, vector<char> &solution);
 
 class Puzzle {
     public:
         int size;
         vector<vector<int>> grid;
         vector<vector<int>> goalGrid;
+        vector<pair<int, int>> goalCoordinates;
 
     Puzzle() {}
     Puzzle(int _size) {
         size = _size;
         grid = vector<vector<int>>(_size, vector<int>(_size, 0));
         goalGrid = createSnail(size);
+        
+        goalCoordinates.resize(size * size);
+        for (int i = 0; i < size; ++i) {
+            for (int j = 0; j < size; ++j) {
+                int val = goalGrid[i][j];
+                goalCoordinates[val] = {i, j};
+            }
+        }
     }
+
     ~Puzzle() {}
 
     void printGrid(const vector<vector<int>>& grid) {

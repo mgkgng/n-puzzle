@@ -1,4 +1,4 @@
-#include "npuzzle.hpp"
+#include "puzzle.hpp"
 
 unique_ptr<Puzzle> puzzle;
 

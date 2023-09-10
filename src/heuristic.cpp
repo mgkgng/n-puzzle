@@ -1,27 +1,28 @@
-#include "npuzzle.hpp"
+#include "puzzle.hpp"
 
-int Manhattan(const vector<vector<int>>& state) {
+inline int myAbs(int x) {
+    return (x < 0) ? -x : x;
+}
+
+int manhattan(const vector<vector<int>>& state, const vector<pair<int, int>>& goalCoordinates) {
     int h = 0;
+    int N = state.size();
 
-    map<int, vector<int>> helper;
-    for (int i = 0; i < puzzle->size; i++) {
-        for (int j = 0; j < puzzle->size; j++) {
-            helper[state[i][j]] = {i, j};
-        }
-    }
-
-    for (int i = 0; i < puzzle->size; i++) {
-        for (int j = 0; j < puzzle->size; j++) {
-            int val = puzzle->goalGrid[i][j];
-            if (val and val != state[i][j])
-                h += abs(i - helper[val][0]) + abs(j - helper[val][1]);
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            int val = state[i][j];
+            if (val != 0) {
+                int goalRow = goalCoordinates[val].first;
+                int goalCol = goalCoordinates[val].second;
+                h += myAbs(i - goalRow) + myAbs(j - goalCol);
+            }
         }
     }
 
     return h;
 }
 
-int Hamming(const vector<vector<int>>& state) {
+int hamming(const vector<vector<int>>& state) {
     int h = 0;
     for (int i = 0; i < puzzle->size; ++i) {
         for (int j = 0; j < puzzle->size; ++j) {
@@ -33,20 +34,19 @@ int Hamming(const vector<vector<int>>& state) {
     return h;
 }
 
-int Euclidean(const vector<vector<int>>& state) {
+int euclidean(const vector<vector<int>>& state, const vector<pair<int, int>>& goalCoordinates) {
     int h = 0;
+    int N = state.size();
 
-    map<int, vector<int>> helper;
-    for (int i = 0; i < puzzle->size; i++) {
-        for (int j = 0; j < puzzle->size; j++)
-            helper[state[i][j]] = {i, j};
-    }
-
-    for (int i = 0; i < puzzle->size; i++) {
-        for (int j = 0; j < puzzle->size; j++) {
-            int val = puzzle->goalGrid[i][j];  
-            if (val and val != state[i][j])
-                h += sqrt(pow(i - helper[val][0], 2) + pow(j - helper[val][1], 2));
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            int val = state[i][j];
+            if (val != 0) {
+                int goalRow = goalCoordinates[val].first;
+                int goalCol = goalCoordinates[val].second;
+                double distance = sqrt(static_cast<double>((i - goalRow) * (i - goalRow) + (j - goalCol) * (j - goalCol)));
+                h += static_cast<int>(distance);
+            }
         }
     }
 
@@ -56,12 +56,12 @@ int Euclidean(const vector<vector<int>>& state) {
 int hFunction(const pState &s, int hChoice) {
     switch (hChoice) {
         case 1:
-            return Manhattan(s.board);
+            return manhattan(s.board, puzzle->goalCoordinates);
         case 2:
-            return Hamming(s.board);
+            return hamming(s.board);
         case 3:
-            return Euclidean(s.board);
+            return euclidean(s.board, puzzle->goalCoordinates);
         default:
-            return Manhattan(s.board);
+            return manhattan(s.board, puzzle->goalCoordinates);
     }
 }

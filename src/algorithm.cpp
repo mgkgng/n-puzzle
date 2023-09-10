@@ -1,4 +1,4 @@
-#include "npuzzle.hpp"
+#include "puzzle.hpp"
 
 static bool move(int dx, int dy, pState &s) {
     int x, y;
