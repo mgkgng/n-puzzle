@@ -12,11 +12,11 @@ static bool move(int dx, int dy, pState &s) {
 
     int newX = x + dx;
     int newY = y + dy;
-
     if (newX >= 0 and newX < puzzle->size and newY >= 0 and newY < puzzle->size) {
         swap(s.board[x][y], s.board[newX][newY]);
         return true;
-    } else
+    }
+    else
         return false;
 }
 

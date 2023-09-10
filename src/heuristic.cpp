@@ -6,10 +6,9 @@ inline int myAbs(int x) {
 
 int manhattan(const vector<vector<int>>& state, const vector<pair<int, int>>& goalCoordinates) {
     int h = 0;
-    int N = state.size();
 
-    for (int i = 0; i < N; ++i) {
-        for (int j = 0; j < N; ++j) {
+    for (int i = 0; i < puzzle->size; ++i) {
+        for (int j = 0; j < puzzle->size; ++j) {
             int val = state[i][j];
             if (val != 0) {
                 int goalRow = goalCoordinates[val].first;
@@ -24,6 +23,7 @@ int manhattan(const vector<vector<int>>& state, const vector<pair<int, int>>& go
 
 int hamming(const vector<vector<int>>& state) {
     int h = 0;
+
     for (int i = 0; i < puzzle->size; ++i) {
         for (int j = 0; j < puzzle->size; ++j) {
             int val = state[i][j];
@@ -31,15 +31,15 @@ int hamming(const vector<vector<int>>& state) {
                 h++;
         }
     }
+
     return h;
 }
 
 int euclidean(const vector<vector<int>>& state, const vector<pair<int, int>>& goalCoordinates) {
     int h = 0;
-    int N = state.size();
 
-    for (int i = 0; i < N; ++i) {
-        for (int j = 0; j < N; ++j) {
+    for (int i = 0; i < puzzle->size; ++i) {
+        for (int j = 0; j < puzzle->size; ++j) {
             int val = state[i][j];
             if (val != 0) {
                 int goalRow = goalCoordinates[val].first;
