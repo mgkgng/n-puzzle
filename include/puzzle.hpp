@@ -43,7 +43,7 @@ class Puzzle {
         grid = vector<vector<int>>(_size, vector<int>(_size, 0));
         goalGrid = createSnail(size);
         
-        goalCoordinates.resize(size * size);
+        goalCoordinates = vector<pair<int, int>>(size * size);
         for (int i = 0; i < size; ++i) {
             for (int j = 0; j < size; ++j) {
                 int val = goalGrid[i][j];
