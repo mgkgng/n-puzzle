@@ -83,7 +83,6 @@
 		<Player />
 		{/if}
 	</div>
-	
 </main>
 
 <style>

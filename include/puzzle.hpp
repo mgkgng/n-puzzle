@@ -27,8 +27,22 @@ struct pState {
     }
 };
 
+struct Node {
+    vector<vector<int>> state;
+    char move;
+    string hash;
+
+    Node(vector<vector<int>> _state, char _move, string _hash) {
+        state = _state;
+        move = _move;
+        hash = _hash;
+    }
+};
+
+
 int hFunction(const pState &s, int hChoice);
 int IDAstar(pState &initialState, int hChoice, vector<char> &solution);
+vector<Node *> try_IDA(int hChoice);
 
 class Puzzle {
     public:

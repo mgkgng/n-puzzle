@@ -19,21 +19,33 @@ int main(int ac, char *av[]) {
 
     auto startTime = chrono::high_resolution_clock::now();
 
-    int minMoves = IDAstar(initialState, hChoice, solution);
+    // int minMoves = IDAstar(initialState, hChoice, solution);
+    auto path = try_IDA(hChoice);
 
     auto endTime = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(endTime - startTime);
 
-    if (minMoves == -1)
+    if (!path.size()) {
         cout << "No solution found" << endl;
-    else {
-        cout << "Number of moves required: " << minMoves << endl;
+    } else {
+        cout << "Number of moves required: " << path.size() - 1<< endl;
         cout << "Ordered sequence: ";
-        for (char move : solution)
-            cout << move << " ";
+        for (auto p : path)
+            cout << p->move << " ";
         cout << endl;
         cout << "Time taken: " << duration.count() << " milliseconds" << endl;
     }
+
+    // if (minMoves == -1)
+    //     cout << "No solution found" << endl;
+    // else {
+    //     cout << "Number of moves required: " << minMoves << endl;
+    //     cout << "Ordered sequence: ";
+    //     for (char move : solution)
+    //         cout << move << " ";
+    //     cout << endl;
+    //     cout << "Time taken: " << duration.count() << " milliseconds" << endl;
+    // }
 
     return 0;
 }
