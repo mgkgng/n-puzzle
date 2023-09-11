@@ -1,11 +1,20 @@
 <script>
 	import { onMount } from 'svelte';
+	import Player from './Player.svelte';
+
 	let size = 3;
 	let errorMsg = '';
-	let cells = Array(size).fill(Array(size).fill(2));
-	let puzzleStr, solutionStr;
+	let cells = [
+		['N', '-', '0'],
+		['P', 'U', 'Z'],
+		['Z', 'L', 'E']
+	]
+	let puzzleStr = '8 7 2 5 4 6 1 3 0';
+	let solutionStr = 'R U L L D D R U R D L U U R D L L U R D L U'
 	let puzzleFontSize;
 	$: puzzleFontSize = `${Math.floor(20 / size)}rem`
+
+	let loaded = false;
 
 	function isSqrd(n) {
 		if (n < 4) return false; // Exclude numbers smaller than 4
@@ -62,10 +71,19 @@
 				return;
 			}
 
+			// cells = puzzle.map((x, i) => {
+				
+			// })
+
 			cells = Array.from({ length: puzzleSize }, (_, i) => Array.from({ length: puzzleSize }, (_, j) => puzzle[i * puzzleSize + j]));
 			size = puzzleSize;
+			loaded = true;
 		}}>Apply</button>
+		{#if loaded}
+		<Player />
+		{/if}
 	</div>
+	
 </main>
 
 <style>
@@ -92,7 +110,8 @@
 		flex-direction: column;
 		height: 80%;
 		aspect-ratio: 1 / 1;
-		border: 1px solid #444;
+		border: 2px solid #78350f;
+		border-radius: .2rem;
 
 	}
 
@@ -105,7 +124,7 @@
 		width: 20%;
 		aspect-ratio: 1 / 1;
 		background: #f7fee7;
-		border: 1px solid #666;
+		border: 1px solid #451a03;
 	}
 
 	.cell-in {
@@ -130,7 +149,8 @@
 		align-items: center;
 		width: 25%;
 		height: 80%;
-		border: 1px solid #666;
+		border: 2px solid #451a03;
+		border-radius: .2rem;
 		gap: .5rem;
 		background: #fffbeb;
 	}
