@@ -28,14 +28,21 @@ struct pState {
 };
 
 struct Node {
-    vector<vector<int>> state;
+    vector<int> state;
     char move;
-    string hash;
 
-    Node(vector<vector<int>> _state, char _move, string _hash) {
+    // Node(vector<vector<int>> _state2D, char _move) {
+    //     for (auto row : _state2D) {
+    //         for (auto e : row) {
+    //             state.push_back(e);
+    //         }
+    //     }
+    //     move = _move;
+    // }
+
+    Node(vector<int> _state, char _move) {
         state = _state;
         move = _move;
-        hash = _hash;
     }
 };
 
@@ -49,6 +56,7 @@ class Puzzle {
         int size;
         vector<vector<int>> grid;
         vector<vector<int>> goalGrid;
+        vector<int> goalTest;
         vector<pair<int, int>> goalCoordinates;
 
     Puzzle() {}
@@ -56,7 +64,12 @@ class Puzzle {
         size = _size;
         grid = vector<vector<int>>(_size, vector<int>(_size, 0));
         goalGrid = createSnail(size);
-        
+
+        for (auto row : goalGrid) {
+            for (auto e : row)
+                goalTest.push_back(e);
+        }
+
         goalCoordinates = vector<pair<int, int>>(size * size);
         for (int i = 0; i < size; ++i) {
             for (int j = 0; j < size; ++j) {
