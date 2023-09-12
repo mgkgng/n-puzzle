@@ -11,7 +11,7 @@ int main(int ac, char *av[]) {
     cout << *puzzle << endl;
 
     int hChoice;
-    cout << "Choose a heuristic function (1->Manhattan, 2->Hamming, 3->Euclidean): " << endl;
+    cout << "Choose a heuristic function (1->Manhattan, 2->Hamming, 3->Euclidean, 4->combinedEuristic): " << endl;
     cin >> hChoice;
     cout << "Starting n-puzzle..." << endl;
 
