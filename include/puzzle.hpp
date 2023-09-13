@@ -46,16 +46,20 @@ struct Node {
     }
 };
 
-
+int findZero(const vector<int> &curr);
 int hFunction(const pState &s, int hChoice);
 int IDAstar(pState &initialState, int hChoice, vector<char> &solution);
 vector<Node *> try_IDA(int hChoice);
+bool isSolvable(const vector<int>& state, const vector<vector<int>> &curr);
+int findXPos(const vector<vector<int>> &curr);
+int invCount(const vector<int>& state);
 
 class Puzzle {
     public:
         int size;
         vector<vector<int>> grid;
         vector<vector<int>> goalGrid;
+        vector<int> initialGrid;
         vector<int> goalTest;
         vector<pair<int, int>> goalCoordinates;
 

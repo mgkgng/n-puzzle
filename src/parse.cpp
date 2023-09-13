@@ -20,8 +20,10 @@ unique_ptr<Puzzle> parse(const string &filename) {
         }
 
         auto rowVals = split(line);
-        for (int i = 0; i < res->size; i++)
+        for (int i = 0; i < res->size; i++) {
             res->grid[rowCount][i] = stoi(rowVals[i]);
+            res->initialGrid.push_back(stoi(rowVals[i]));
+        }
         rowCount++;
     }
     return res;

@@ -10,7 +10,7 @@ char moves[4] = {'U', 'D', 'L', 'R'}; // Char representation of the moves
 int re_manhattan(const vector<int>& state) {
     int h = 0;
 
-    for (int i = 0; i < state.size(); i++) {
+    for (int i = 0; i < puzzle->size * puzzle->size - 1; ++i) {
         if (state[i] && state[i] != puzzle->goalTest[i]) {
             auto val = puzzle->goalCoordinates[state[i]];
             h += abs(i / puzzle->size - val.first) + abs(i % puzzle->size - val.second);
@@ -20,12 +20,46 @@ int re_manhattan(const vector<int>& state) {
     return h;
 }
 
+int invCount(const vector<int>& state) {
+    int count = 0;
+
+    for (int i = 0; i < puzzle->size * puzzle->size; ++i) {
+        for (int j = i + 1; j < puzzle->size * puzzle->size; ++j) {
+            if (state[i] && state[j] && state[i] > state[j])
+                count++;
+        }
+    }
+    return count;
+}
+
 int findZero(const vector<int> &curr) {
     for (int i = 0; i < puzzle->size * puzzle->size; i++) {
         if (curr[i] == 0)
             return i;
     }
     return -1;
+}
+
+int findXPos(const vector<vector<int>> &curr) {
+    for (int i = puzzle->size - 1; i >= 0; i--)
+        for (int j = puzzle->size - 1; j >= 0; j--)
+            if (curr[i][j] == 0)
+                return puzzle->size - i;
+    return -1;
+}
+
+bool isSolvable(const vector<int>& state, const vector<vector<int>> &curr) {
+    int inv = invCount(state);
+
+    if (puzzle->size % 2 == 1)
+        return (inv % 2);
+    else {
+        int zeroPos = findXPos(curr);
+        if (zeroPos % 2 == 1)
+            return not (inv % 2);
+        else
+            return (inv % 2);
+    }
 }
 
 bool checkDouble(vector<Node *> &path, const vector<int> &curr) {

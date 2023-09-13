@@ -5,8 +5,27 @@ unique_ptr<Puzzle> puzzle;
 int main(int ac, char *av[]) {
     puzzle = parse(std::string(av[1]));
 
-    pState initialState;
-    initialState.board = puzzle->grid;
+    // Print inversion count in the initial grid
+    cout << "Inversion count: " << invCount(puzzle->initialGrid) << endl;
+    //// Print X position in the initial grid
+    //cout << "X pos: " << findXPos(puzzle->grid) << endl;
+
+    if (!isSolvable(puzzle->initialGrid, puzzle->grid)) {
+        cout << "Puzzle is not solvable!" << endl;
+        return 0;
+    }
+
+    cout << "Initial grid:" << endl;
+    for (int val : puzzle->initialGrid) {
+        cout << setw(4) << val;
+    }
+    cout << endl;
+
+    cout << "Goal grid:" << endl;
+    for (int val : puzzle->goalTest) {
+        cout << setw(4) << val;
+    }
+    cout << endl;
 
     cout << *puzzle << endl;
 
