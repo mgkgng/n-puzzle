@@ -1,111 +1,76 @@
 #include "puzzle.hpp"
 
-inline int myAbs(int x) {
-    return (x < 0) ? -x : x;
-}
-
-int manhattan(const vector<vector<int>>& state, const vector<pair<int, int>>& goalCoordinates) {
+int manhattan(const vector<int>& state) {
     int h = 0;
-
-    for (int i = 0; i < puzzle->size; ++i) {
-        for (int j = 0; j < puzzle->size; ++j) {
-            int val = state[i][j];
-            if (val != 0) {
-                int goalRow = goalCoordinates[val].first;
-                int goalCol = goalCoordinates[val].second;
-                h += myAbs(i - goalRow) + myAbs(j - goalCol);
-            }
+    for (int i = 0; i < (puzzle->size * puzzle->size) - 1; ++i) {
+        if (state[i] != 0 and state[i] != puzzle->goalTest[i]) {
+            auto val = puzzle->goalCoordinates[state[i]];
+            h += myAbs(i / puzzle->size - val.first) + myAbs(i % puzzle->size - val.second);
         }
     }
-
     return h;
 }
 
-int hamming(const vector<vector<int>>& state) {
+int hamming(const vector<int>& state) {
     int h = 0;
-
-    for (int i = 0; i < puzzle->size; ++i) {
-        for (int j = 0; j < puzzle->size; ++j) {
-            int val = state[i][j];
-            if (val and val != puzzle->goalGrid[i][j]) // if val is not 0 and not in the right place
-                h++;
-        }
-    }
-
+    for (int i = 0; i < (puzzle->size * puzzle->size) - 1; ++i)
+        if (state[i] != 0 and state[i] != puzzle->goalTest[i])
+            h++;
     return h;
 }
 
-int euclidean(const vector<vector<int>>& state, const vector<pair<int, int>>& goalCoordinates) {
-    int h = 0;
+//int linearConflict(const vector<vector<int>>& state) {
+//    int h = 0;
+//    for (int i = 0; i < puzzle->size; ++i) {
+//        for (int j = 0; j < puzzle->size; ++j) {
+//            int val = state[i][j];
+//            if (val != 0) {
+//                int goalRow = puzzle->goalCoordinates[val].first;
+//                int goalCol = puzzle->goalCoordinates[val].second;
+//                if (i != goalRow or j != goalCol) {
+//                    for (int k = j + 1; k < puzzle->size; ++k) {
+//                        int nextVal = state[i][k];
+//                        if (nextVal != 0 and puzzle->goalCoordinates[nextVal].first == goalRow
+//                            and i == puzzle->goalCoordinates[nextVal].first) {
+//                            if (val > nextVal) {
+//                                h++;
+//                            }
+//                        }
+//                    }
+//                    for (int k = i + 1; k < puzzle->size; ++k) {
+//                        int nextVal = state[k][j];
+//                        if (nextVal != 0 and puzzle->goalCoordinates[nextVal].second == goalCol
+//                            and j == puzzle->goalCoordinates[nextVal].second) {
+//                            if (val > nextVal) {
+//                                h++;
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    return h;
+//}
 
-    for (int i = 0; i < puzzle->size; ++i) {
-        for (int j = 0; j < puzzle->size; ++j) {
-            int val = state[i][j];
-            if (val != 0) {
-                int goalRow = goalCoordinates[val].first;
-                int goalCol = goalCoordinates[val].second;
-                double distance = sqrt(static_cast<double>((i - goalRow) * (i - goalRow) + (j - goalCol) * (j - goalCol)));
-                h += static_cast<int>(distance);
-            }
-        }
-    }
+//int manhattanLinearConflict(const vector<vector<int>>& state2D, const vector<int>& state1D) {
+//    int manhattanDistance = manhattan(state1D);
+//    int linearConflictValue = linearConflict(state2D);
 
-    return h;
-}
+//    return manhattanDistance + 2 * linearConflictValue;
+//}
 
-int linearConflict(const vector<vector<int>>& state, const vector<pair<int, int>>& goalCoordinates) {
-    int conflicts = 0;
-
-    for (int i = 0; i < puzzle->size; ++i) {
-        for (int j = 0; j < puzzle->size; ++j) {
-            int val = state[i][j];
-            if (val != 0) {
-                int goalRow = goalCoordinates[val].first;
-                int goalCol = goalCoordinates[val].second;
-                if (i != goalRow || j != goalCol) { // Check if the current value is not in its goal position
-                    // Check for conflicts in the same row
-                    for (int k = j + 1; k < puzzle->size; ++k) {
-                        int nextVal = state[i][k];
-                        if (nextVal != 0 && goalCoordinates[nextVal].first == goalRow && i == goalCoordinates[nextVal].first) {
-                            if (val > nextVal) {
-                                conflicts++;
-                            }
-                        }
-                    }
-                    for (int k = i + 1; k < puzzle->size; ++k) {
-                        int nextVal = state[k][j];
-                        if (nextVal != 0 && goalCoordinates[nextVal].second == goalCol && j == goalCoordinates[nextVal].second) {
-                            if (val > nextVal) {
-                                conflicts++;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return conflicts;
-}
-
-int combinedHeuristic(const vector<vector<int>>& state, const vector<pair<int, int>>& goalCoordinates) {
-    int manhattanDistance = manhattan(state, goalCoordinates);
-    int linearConflictValue = linearConflict(state, goalCoordinates);
-
-    return manhattanDistance + 2 * linearConflictValue;
-}
-
-int hFunction(const pState &s, int hChoice) {
+int hFunction(int hChoice, const vector<int>& state) {
     switch (hChoice) {
         case 1:
-            return manhattan(s.board, puzzle->goalCoordinates);
+            return manhattan(state);
         case 2:
-            return hamming(s.board);
-        case 3:
-            return euclidean(s.board, puzzle->goalCoordinates);
-        case 4:
-            return combinedHeuristic(s.board, puzzle->goalCoordinates);
+            return hamming(state);
         default:
-            return manhattan(s.board, puzzle->goalCoordinates);
+            return -1;
+        //case 3
+        //    return linearConflict();
+        //case 4:
+        //    return combinedHeuristic();
     }
 }

@@ -13,46 +13,16 @@
 #include <string>
 #include <cmath>
 #include <map>
+#include <queue>
+#include <functional>
+#include <math.h>
 
 using namespace std;
 
-#define VAL(x, max) ((x != max) ? x++ : 0) // The last number of the goal spiral should be 0
-
-struct pState {
-    vector<vector<int>> board;
-    int cost, hFunction;
-
-    bool operator==(const pState &other) const {
-        return board == other.board;
-    }
-};
-
-struct Node {
-    vector<int> state;
-    char move;
-
-    // Node(vector<vector<int>> _state2D, char _move) {
-    //     for (auto row : _state2D) {
-    //         for (auto e : row) {
-    //             state.push_back(e);
-    //         }
-    //     }
-    //     move = _move;
-    // }
-
-    Node(vector<int> _state, char _move) {
-        state = _state;
-        move = _move;
-    }
-};
-
-int findZero(const vector<int> &curr);
-int hFunction(const pState &s, int hChoice);
-int IDAstar(pState &initialState, int hChoice, vector<char> &solution);
-vector<Node *> try_IDA(int hChoice);
 bool isSolvable(const vector<int>& state, const vector<vector<int>> &curr);
-int findXPos(const vector<vector<int>> &curr);
-int invCount(const vector<int>& state);
+int hFunction(int hChoice, const vector<int>& state);
+
+#define VAL(x, max) ((x != max) ? x++ : 0) // The last number of the goal spiral should be 0
 
 class Puzzle {
     public:
@@ -86,12 +56,13 @@ class Puzzle {
     ~Puzzle() {}
 
     void printGrid(const vector<vector<int>>& grid) {
-        cout << "Solution grid:" << endl;
+        cout << "Solution Grid (" << grid.size() << "x" << grid.size() << "):"<< endl;
         for (const auto& row : grid) {
             for (int val : row)
                 cout << setw(4) << val;
             cout << endl;
         }
+        cout << endl;
     }
 
     vector<vector<int>> createSnail(int size) {
@@ -125,12 +96,43 @@ class Puzzle {
     friend ostream& operator<<(ostream& os, const Puzzle& p);
 };
 
+struct Node {
+    vector<int> state;
+    vector<vector<int>> state2D;
+    char move;
+    int g;
+    int f;
+    Node* parent;
+
+    Node(vector<int> _state, char _move) {
+        state = _state;
+        move = _move;
+    }
+
+    Node(vector<int> _state, char _move, int _g, int _f) {
+        state = _state;
+        move = _move;
+        g = _g;
+        f = _f;
+        parent = nullptr;
+    }
+};
+
+vector<Node *> A_star(int hChoice);
+vector<Node *> IDA_star(int hChoice);
+
+struct CompareNodes {
+    bool operator()(const Node* left, const Node* right) const {
+        return left->f > right->f;
+    }
+};
+
 extern unique_ptr<Puzzle> puzzle;
 
 unique_ptr<Puzzle> parse(const string &filename);
 
 inline ostream& operator<<(ostream& os, const Puzzle& p) {
-    os << "Puzzle size: " << p.size << endl;
+    os << "Initial Grid (" << p.size << "x" << p.size << "):"<< endl;
     for (const auto& row : p.grid) {
         for (const auto& cell : row)
             os << setw(4) << cell;
@@ -147,4 +149,8 @@ inline vector<string> split(const string &str) {
     while (iss >> token)
         res.push_back(token);
     return res;
+}
+
+inline int myAbs(int x) {
+    return (x < 0) ? -x : x;
 }
