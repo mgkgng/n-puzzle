@@ -11,7 +11,7 @@ unique_ptr<Puzzle> parse(const string &filename) {
         exit(EXIT_FAILURE);
     }
 
-    while (getline(file, line)) {        
+    while (getline(file, line)) {
         if (line[0] == '#') continue;
 
         if (!res) { 

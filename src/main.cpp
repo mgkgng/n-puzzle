@@ -31,7 +31,7 @@ int main(int ac, char *av[]) {
     }
 
     int hChoice;
-    cout << "Choose an heuristic function: 1->Manhattan, 2->Hamming:" << endl;
+    cout << "Choose an heuristic function: 1->Manhattan, 2->Hamming, 3->Linear Conflict" << endl;
     cin >> hChoice;
     cout << endl;
 
