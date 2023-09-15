@@ -39,26 +39,26 @@ int linearConflict(const vector<int>& state, const Puzzle& puzzle, vector<pair<i
 //    puzzle.size = 3;
 //    puzzle.goalTest = {1, 2, 3, 4, 5, 6, 7, 8, 0};
 //    puzzle.goalCoordinates.resize(9);
-//
+
 //    for (int i = 0; i < puzzle.size; ++i) {
 //        for (int j = 0; j < puzzle.size; ++j) {
 //            puzzle.goalCoordinates[puzzle.goalTest[i * puzzle.size + j]] = make_pair(i, j);
 //        }
 //    }
-//
+
 //    vector<int> initialState = {4, 2, 5, 1, 0, 6, 3, 8, 7};
-//
+
 //    vector<pair<int, int>> conflictingTiles;
 //    int linearConflictValue = linearConflict(initialState, puzzle, conflictingTiles);
-//
+
 //    cout << "Linear Conflict Heuristic Value: " << linearConflictValue << endl;
-//
+
 //    cout << "Conflicting tiles: ";
 //    for (const auto& tilePair : conflictingTiles) {
 //        cout << "(" << tilePair.first << ", " << tilePair.second << ") ";
 //    }
 //    cout << endl;
-//
+
 //   return 0;
 //}
 
