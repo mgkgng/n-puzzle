@@ -12,7 +12,6 @@ struct Puzzle {
 int linearConflict(const vector<int>& state, const Puzzle& puzzle, vector<pair<int, int>>& conflictingTiles) {
     int h = 0;
     for (int i = 0; i < puzzle.size * puzzle.size; ++i) {
-        cout << "i: " << i << endl;
         int val = state[i];
         if (val != 0) {
             int goalRow = puzzle.goalCoordinates[val].first;
