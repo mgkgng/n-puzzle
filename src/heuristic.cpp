@@ -21,12 +21,12 @@ int hamming(const vector<int>& state) {
 
 int linearConflict(const vector<int>& state) {
     int h = 0;
-    for (int i = 0; i < (puzzle->size * puzzle->size) - 1; ++i) {
+    for (int i = 0; i < puzzle->size * puzzle->size; ++i) {
         int val = state[i];
         if (val != 0) {
             int goalRow = puzzle->goalCoordinates[val].first;
             int goalCol = puzzle->goalCoordinates[val].second;
-            for (int k = i + 1; k < (puzzle->size * puzzle->size) - 1; ++k) {
+            for (int k = i + 1; k < puzzle->size * puzzle->size; ++k) {
                 int nextVal = state[k];
                 if (nextVal != 0 and (
                 (puzzle->goalCoordinates[nextVal].first == goalRow and (k / 3 == puzzle->goalCoordinates[nextVal].first) and k - i == 1) or
