@@ -19,16 +19,10 @@ int linearConflict(const vector<int>& state, const Puzzle& puzzle, vector<pair<i
             if (i / 3 != goalCol or i % 3 != goalRow) {
                 for (int k = i + 1; k < puzzle.size * puzzle.size; ++k) {
                     int nextVal = state[k];
-                    if (nextVal != 0 && puzzle.goalCoordinates[nextVal].first == goalRow && (i / 3 == puzzle.goalCoordinates[nextVal].first)) {
-                        if (val > nextVal) {
-                            h++;
-                            conflictingTiles.push_back({val, nextVal});
-                        }
-                    }
-                }
-                for (int k = i + 1; k < puzzle.size * puzzle.size; ++k) {
-                    int nextVal = state[k];
-                    if (nextVal != 0 && puzzle.goalCoordinates[nextVal].second == goalCol && (i % 3 == puzzle.goalCoordinates[nextVal].second)) {
+                    if (nextVal != 0 and (
+                        puzzle.goalCoordinates[nextVal].first == goalRow && (i / 3 == puzzle.goalCoordinates[nextVal].first) or
+                        puzzle.goalCoordinates[nextVal].second == goalCol && (i % 3 == puzzle.goalCoordinates[nextVal].second)
+                        )) {
                         if (val > nextVal) {
                             h++;
                             conflictingTiles.push_back({val, nextVal});
@@ -41,7 +35,7 @@ int linearConflict(const vector<int>& state, const Puzzle& puzzle, vector<pair<i
     return h;
 }
 
-// Result should be 2 with conflicting tiles: (4, 1) and (8, 7) -> NOT WORKING
+// Result should be 2 with conflicting tiles: (4, 1) (8, 7) -> NOT WORKING return (4, 1) (2, 1) (6, 3) (8, 7)
 int main() {
     Puzzle puzzle;
     puzzle.size = 3;

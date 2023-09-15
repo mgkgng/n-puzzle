@@ -39,7 +39,7 @@ int linearConflict(const vector<vector<int>>& state, const vector<pair<int, int>
     return conflicts;
 }
 
-// Result should be 2 with conflicting tiles: (4, 1) and (8, 7) -> WORKING
+// Result should be 2 with conflicting tiles: (4, 1) (8, 7) -> WORKING
 int main() {
     vector<vector<int>> initialBoard = {{4, 2, 5}, {1, 0, 6}, {3, 8, 7}};
     vector<vector<int>> goalBoard = {{1, 2, 3}, {4, 5, 6}, {7, 8, 0}};
