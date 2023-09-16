@@ -19,6 +19,17 @@ int hamming(const vector<int>& state) {
     return h;
 }
 
+int euclidian(const vector<int>& state) {
+    int h = 0;
+    for (int i = 0; i < puzzle->size * puzzle->size; ++i) {
+        if (state[i] != 0 and state[i] != puzzle->goalTest[i]) {
+            auto val = puzzle->goalCoordinates[state[i]];
+            h += sqrt(pow(i / puzzle->size - val.first, 2) + pow(i % puzzle->size - val.second, 2));
+        }
+    }
+    return h;
+}
+
 int linearConflict(const vector<int>& state) {
     int h = 0;
     for (int i = 0; i < puzzle->size * puzzle->size; ++i) {
@@ -39,7 +50,11 @@ int linearConflict(const vector<int>& state) {
             }
         }
     }
-    return 2 * h; 
+    return h; 
+}
+
+int manhattanLinearConflict(const vector<int>& state) {
+    return manhattan(state) + 2 * linearConflict(state);
 }
 
 int hFunction(int hChoice, const vector<int>& state) {
@@ -49,7 +64,9 @@ int hFunction(int hChoice, const vector<int>& state) {
         case 2:
             return hamming(state);
         case 3:
-            return linearConflict(state);
+            return euclidian(state);
+        case 4:
+            return manhattanLinearConflict(state);
         default:
             return -1;
     }

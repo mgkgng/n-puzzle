@@ -31,12 +31,12 @@ int main(int ac, char *av[]) {
     }
 
     int hChoice;
-    cout << "Choose an heuristic function: 1->Manhattan, 2->Hamming, 3->Linear Conflict" << endl;
+    cout << "Choose an heuristic function, 1 -> Manhattan, 2 -> Hamming, 3 -> Euclidian, 4 -> Manhattan + Linear Conflict:" << endl;
     cin >> hChoice;
     cout << endl;
 
     int searchChoice;
-    cout << "Choose a search algorithm: 1->A*, 2->IDA*:" << endl;
+    cout << "Choose a search algorithm, 1 -> A*, 2 -> IDA*:" << endl;
     cin >> searchChoice;
     cout << endl;
 
