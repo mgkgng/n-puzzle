@@ -34,21 +34,25 @@ int after_move(int pos, int dx, int dy) {
     return pos + dx * puzzle->size + dy;
 }
 
-vector<Node *> A_star(int hChoice) {
+vector<Node *> A_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemory) {
     vector<int> hello;
     for (auto row : puzzle->grid)
         for (auto e : row)
             hello.push_back(e);
 
-    Node* root = new Node(hello, 'O', 0, 0);
+    Node* root = new Node(hello, 'S', 0, 0);
     priority_queue<Node*, vector<Node*>, CompareNodes> pq; // Node with the lowest f value will be at the top of the queue thanks to the CompareNodes struct
     pq.push(root);
 
     vector<Node*> path; // Store the path from the root node to the current node
 
     while (not pq.empty()) {
+        int currentStatesInMemory = pq.size();
+        if (currentStatesInMemory > maxStatesInMemory)
+            maxStatesInMemory = currentStatesInMemory; // Update the maximum if necessary
         Node* curr = pq.top();
         pq.pop();
+        totalStatesVisited++;
 
         if (curr->state == puzzle->goalTest) {
             path.clear();
@@ -82,6 +86,8 @@ vector<Node *> A_star(int hChoice) {
         }
     }
 
+    cout << "Total states visited: " << totalStatesVisited << endl;
+
     return vector<Node*>(); // Return empty vector if no solution is found
 }
 
@@ -107,12 +113,12 @@ int search(vector<Node *> &path, int g, int threshold, int hChoice) {
         
         tmp[zeroPos] = tmp[newPos];
         tmp[newPos] = 0;
-        // const string tmpHash = hashState(tmp); // hashing (optimization)
+        // const string tmpHash = hashState(tmp); // Hashing for optimization
         if (checkDouble(path, tmp) == true) continue; // Check if the new state has already been visited to avoid revisiting previously explored states
 
         path.push_back(new Node(tmp, moves[i]));
         int t = search(path, g + 1, threshold, hChoice); 
-        if (t == -1) // Path found
+        if (t == -1) // Solution found
             return -1;
         if (t < min)
             min = t;
@@ -128,7 +134,7 @@ vector<Node *> IDA_star(int hChoice) {
         for (auto e : row)
             hello.push_back(e);
 
-    Node *root = new Node(hello, 'O');
+    Node *root = new Node(hello, 'S');
     int threshold = hFunction(hChoice, root->state);
     vector<Node *> path = { root };
 

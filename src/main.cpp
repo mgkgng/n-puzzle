@@ -6,41 +6,24 @@ int main(int ac, char *av[]) {
     cout << endl;
     puzzle = parse(std::string(av[1]));
 
-    // Print inversion count in the initial grid
-    //cout << "Inversion count: " << invCount(puzzle->initialGrid) << endl;
-    //// Print X position in the initial grid
-    //cout << "X pos: " << findXPos(puzzle->grid) << endl;
-
-    //cout << "Initial grid:" << endl;
-    //for (int val : puzzle->initialGrid) {
-    //    cout << setw(4) << val;
-    //}
-    //cout << endl;
-
-    //cout << "Goal grid:" << endl;
-    //for (int val : puzzle->goalTest) {
-    //    cout << setw(4) << val;
-    //}
-    //cout << endl;
-
     cout << *puzzle << endl;
 
-    if (!isSolvable(puzzle->initialGrid, puzzle->grid)) {
-        cout << "Puzzle is not solvable!" << endl << endl;
-        return 0;
+    if (not isSolvable(puzzle->initialGrid, puzzle->grid)) {
+        cout << "The puzzle is not solvable!" << endl << endl;
+        return 1;
     }
 
     int hChoice;
-    cout << "Choose an heuristic function, 1 -> Manhattan, 2 -> Hamming, 3 -> Euclidian, 4 -> Manhattan + Linear Conflict:" << endl;
+    cout << "Choose an heuristic function: [1]Manhattan, [2]Hamming, [3]Euclidian, [4]Manhattan + Linear Conflict" << endl;
     cin >> hChoice;
     cout << endl;
 
     int searchChoice;
-    cout << "Choose a search algorithm, 1 -> A*, 2 -> IDA*:" << endl;
+    cout << "Choose a search algorithm: [1]IDA*, [2]A*:" << endl;
     cin >> searchChoice;
     cout << endl;
 
-    cout << "Solving the N-Puzzle..." << endl << endl;
+    cout << "Solving the puzzle..." << endl << endl;
 
     vector<char> solution;
 
@@ -48,21 +31,26 @@ int main(int ac, char *av[]) {
 
     auto startTime = chrono::high_resolution_clock::now();
 
+    int totalStatesVisited = 0;
+    int maxStatesInMemory = 0;
+
     if (searchChoice == 1)
-        path = A_star(hChoice);
-    else if (searchChoice == 2)
         path = IDA_star(hChoice);
+    else if (searchChoice == 2)
+        path = A_star(hChoice, totalStatesVisited, maxStatesInMemory);
     else {
-        cout << "Invalid search algorithm choice." << endl;
+        cout << "Invalid search algorithm choice!" << endl;
         return 1;
     }
 
     auto endTime = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(endTime - startTime);
 
-    if (!path.size()) {
-        cout << "No solution found" << endl;
-    } else {
+    if (not path.size())
+        cout << "No solution found!" << endl;
+    else {
+        cout << "Total states visited: " << totalStatesVisited << endl;
+        cout << "Maximum number of states in memory: " << maxStatesInMemory << endl;
         cout << "Number of moves required: " << path.size() - 1<< endl;
         cout << "Ordered sequence: ";
         for (auto p : path)
