@@ -98,7 +98,6 @@ class Puzzle {
 
 struct Node {
     vector<int> state;
-    vector<vector<int>> state2D;
     char move;
     int g;
     int f;
@@ -119,7 +118,7 @@ struct Node {
 };
 
 vector<Node *> A_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemory);
-vector<Node *> IDA_star(int hChoice);
+vector<Node *> IDA_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemory);
 
 struct CompareNodes {
     bool operator()(const Node* left, const Node* right) const {

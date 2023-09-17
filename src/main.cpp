@@ -14,12 +14,12 @@ int main(int ac, char *av[]) {
     }
 
     int hChoice;
-    cout << "Choose an heuristic function: [1]Manhattan, [2]Hamming, [3]Euclidian, [4]Manhattan + Linear Conflict" << endl;
+    cout << "Choose an heuristic function: [1]-Manhattan, [2]-Hamming, [3]-Euclidian, [4]-Manhattan + Linear Conflict" << endl;
     cin >> hChoice;
     cout << endl;
 
     int searchChoice;
-    cout << "Choose a search algorithm: [1]IDA*, [2]A*:" << endl;
+    cout << "Choose a search algorithm: [1]-IDA*, [2]-A*:" << endl;
     cin >> searchChoice;
     cout << endl;
 
@@ -35,7 +35,7 @@ int main(int ac, char *av[]) {
     int maxStatesInMemory = 0;
 
     if (searchChoice == 1)
-        path = IDA_star(hChoice);
+        path = IDA_star(hChoice, totalStatesVisited, maxStatesInMemory);
     else if (searchChoice == 2)
         path = A_star(hChoice, totalStatesVisited, maxStatesInMemory);
     else {
