@@ -2,17 +2,21 @@
     import { createEventDispatcher } from 'svelte';
 
     const dispatch = createEventDispatcher()
+    
     export let playing
 </script>
 
 <div class="player">
-    <button on:click={() => dispatch('first')}>
+    <!-- <button on:click={() => dispatch('first')}>
         <img src="icons/double_arrow_left.svg" alt="dal">
     </button>
     <button on:click={() => dispatch('prev')}>
         <img src="icons/arrow_prev.svg" alt="ap">
-    </button>
-    <button on:click={() => dispatch('play')}>
+    </button> -->
+    <button on:click={() => {
+        dispatch((playing) ? 'pause' : 'play')
+        playing = !playing
+    }}>
         {#if !playing}
         <img src="icons/play.svg" alt="play">
         {:else}
@@ -22,12 +26,12 @@
     <button on:click={() => dispatch('stop')}>
         <img src="icons/stop.svg" alt="stop">
     </button>
-    <button on:click={() => dispatch('next')}>
+    <!-- <button on:click={() => dispatch('next')}>
         <img src="icons/arrow_next.svg" alt="an">
     </button>
     <button on:click={() => dispatch('last')}>
         <img src="icons/double_arrow_right.svg" alt="dar">
-    </button>
+    </button> -->
 </div>
 
 <svelte:window

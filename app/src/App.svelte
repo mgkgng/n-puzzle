@@ -14,13 +14,17 @@
 		{ value: 'L', x: 2, y: 1 },
 		{ value: 'E', x: 2, y: 2 },		
 	]
-	let puzzleStr = '8 7 2 5 4 6 1 3 0';
-	let solutionStr = 'R U L L D D R U R D L U U R D L L U R D L U'
+	let initialState;
+	let puzzleStr = '8 1 6 7 0 4 3 5 2';
+	let solutionStr = 'D L U U R R D D L U U R D D L U U R D L'
 	let puzzleFontSize;
 	$: puzzleFontSize = `${Math.floor(20 / size)}rem`
 
 	let loaded = false;
 
+	let solution;
+	let solutionIndex = -1;
+	
 	const directions = {
 		'U': [-1, 0],
 		'D': [1, 0],
@@ -29,6 +33,7 @@
 	}
 
 	let movingInterval;
+	let playing = false;
 
 	let prevPos = [];
 
@@ -53,6 +58,12 @@
 		if (y > 0) res.push(cells.find(cell => cell.x === x && cell.y === y - 1));
 		if (y < size - 1) res.push(cells.find(cell => cell.x === x && cell.y === y + 1));
 		return res.filter(cell => cell.x != prevPos[0] && cell.y != prevPos[1]);
+	}
+
+	function getNextPos(x, y, dx, dy) {
+		if (x + dx < 0 || x + dx >= size || y + dy < 0 || y + dy >= size)
+			return [-1, -1];
+		return [x + dx, y + dy];
 	}
 
 	onMount(() => {
@@ -95,6 +106,7 @@
 		{/each}
 	</div>
 	<div class="inputs">
+		{#if !loaded}
 		<label>
 			Puzzle:
 			<input type="text" bind:value={puzzleStr} />
@@ -109,10 +121,8 @@
 				return;
 			}
 
-			console.log(puzzleStr, solutionStr)
-
 			const puzzle = puzzleStr.split(' ').filter(x => x.length);
-			const solution = solutionStr.split(' ').filter(x => x.length);
+			solution = solutionStr.split(' ').filter(x => x.length);
 
 			puzzleStr = puzzle.join(' ');
 			solutionStr = solution.join(' ')
@@ -131,12 +141,49 @@
 				const y = i % puzzleSize;
 				return { value, x, y }
 			}).filter(x => x);
-			console.log(cells)
+			initialState = cells;
 			size = puzzleSize;
 			loaded = true;
 		}}>Apply</button>
-		{#if loaded}
-		<Player />
+		{:else}
+		<div class="solution-wrapper">
+			<h3 class="solution-title">Solution</h3>
+			<div class="solution">
+				{#each solution as step, i}
+				<p class="step" style="{ i == solutionIndex ? "background: var(--main); color: #fff;" : "" }">{step}</p>
+				{/each}
+			</div>
+		</div>
+		<Player 
+			{playing}
+			on:play={() => {
+				movingInterval = setInterval(() => {
+					if (++solutionIndex>= solution.length) {
+						clearInterval(movingInterval);
+						return;
+					}
+
+					const [dx, dy] = directions[solution[solutionIndex]];
+					const [emptyX, emptyY] = getMissingIndex(cells);
+
+					let nextPos = getNextPos(emptyX, emptyY, dx, dy);
+					if (nextPos[0] < 0) {
+						clearInterval(movingInterval);
+						cells = initialState;
+						errorMsg = `Solution is not valid (step ${solutionIndex})`
+						return;
+					}
+					let next = cells.find(cell => cell.x === nextPos[0] && cell.y === nextPos[1]);
+					next.x = emptyX;
+					next.y = emptyY;
+					cells = cells;
+				}, 800)
+			}}
+			on:pause={() => clearInterval(movingInterval)}
+			on:stop={() => {
+				clearInterval(movingInterval);
+				cells = initialState;
+			}}/>
 		{/if}
 	</div>
 </main>
@@ -187,9 +234,6 @@
 		position: absolute;
 		aspect-ratio: 1 / 1;
 		background: var(--main);
-		/* top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%); */
 		color: white;
 		display: flex;
 		justify-content: center;
@@ -209,6 +253,7 @@
 		border-radius: .2rem;
 		gap: .5rem;
 		background: #fffbeb;
+		padding: 1rem;
 	}
 
 	.apply-btn {
@@ -218,6 +263,39 @@
 		color: white;
 		cursor: pointer;
 		border: none;
+	}
+
+	.solution-wrapper {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.solution-title {
+		margin: .2rem;
+		padding: .2rem 1.2rem;
+		border: 2px solid #fff;
+		background: var(--main);
+		color: white;
+		border-radius: .1rem;
+	}	
+
+	.solution {
+		padding: .3rem;
+		display: grid;
+		grid-template-columns: repeat(8, 1fr);
+		gap: .2em;
+		row-gap: .2em;
+		border: 1px solid #451a03;
+		border-radius: .2rem;
+	}
+
+	.step {
+		padding: .2rem .3rem;
+		background: #fff;
+		border: 1px solid #451a03;
+		margin: 0;
 	}
 
 	@media (min-width: 640px) {

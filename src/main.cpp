@@ -53,8 +53,8 @@ int main(int ac, char *av[]) {
         cout << "Maximum number of states in memory: " << maxStatesInMemory << endl;
         cout << "Number of moves required: " << path.size() - 1<< endl;
         cout << "Ordered sequence: ";
-        for (auto p : path)
-            cout << p->move << " ";
+        for (int i = 1; i < path.size(); i++)
+            cout << path[i]->move << " ";
         cout << endl;
         cout << "Time taken: " << duration.count() << " milliseconds" << endl;
     }
