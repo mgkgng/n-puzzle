@@ -41,6 +41,8 @@
 
 	let prevPos = [];
 
+	let emojis = ['🧠', '🐊', '🎃', '👁️', '​💀​', '🫀', '​🐐', '​🔥', '⭐', '​👾', '🧟‍♂️', '​​🪲', '​🐲', '🫐', '​🍥', '​🌚', '​💣', '🌸', '​💩'​]
+
 	function isSqrd(n) {
 		if (n < 4) return false; // Exclude numbers smaller than 4
 
@@ -103,7 +105,7 @@
 				return
 			}
 		}
-		solveMsg = 'Puzzle solved! 👏'
+		solveMsg = 'Puzzle solved!'
 	}
 
 	onMount(() => {
@@ -116,7 +118,7 @@
 			picked.y = emptyY;
 			prevPos = [emptyX, emptyY];
 			cells = cells
-		}, 1200)
+		}, 800)
 	})
 </script>
 
@@ -129,8 +131,11 @@
 				data-x={x}
 				data-y={y}
 			>
+				{#if !loaded}
+				<div class="emoji" style="font-size: {puzzleFontSize};">{emojis[Math.floor(Math.random() * emojis.length)]}</div>
+				{/if}
 				{#if solved && x === thumbX && y === thumbY}
-				<div class="thumb" style="font-size: {puzzleFontSize};">👍</div>
+				<div class="emoji" style="font-size: {puzzleFontSize};">👏</div>
 				{/if}
 			</div>
 			{/each}
@@ -263,7 +268,6 @@
 		justify-content: center;
 		align-items: center;
 		text-align: center;
-		max-width: 240px;
 		margin: 0;
 		gap: 1rem;
 	}
@@ -272,6 +276,7 @@
 		position: relative;
 		display: flex;
 		flex-direction: column;
+		min-height: 24rem;
 		height: 80%;
 		aspect-ratio: 1 / 1;
 		border: 2px solid #78350f;
@@ -308,7 +313,8 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		width: 25%;
+		min-width: 18rem;
+		width: 18rem;
 		height: 80%;
 		border: 2px solid #451a03;
 		border-radius: .2rem;
@@ -359,7 +365,7 @@
 		margin: 0;
 	}
 
-	.thumb {
+	.emoji {
 		position: absolute;
 		display: flex;
 		justify-content: center;
@@ -369,9 +375,9 @@
 
 	}
 
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
+	@media (max-width: 820px) {
+		.inputs {
+			display: none;
 		}
 	}
 </style>
