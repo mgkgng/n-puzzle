@@ -5,9 +5,14 @@
 	let size = 3;
 	let errorMsg = '';
 	let cells = [
-		['N', '-', '0'],
-		['P', 'U', 'Z'],
-		['Z', 'L', 'E']
+		{ value: 'N', x: 0, y: 0 },
+		{ value: '-', x: 0, y: 1 },
+		{ value: 'P', x: 1, y: 0 },
+		{ value: 'U', x: 1, y: 1 },
+		{ value: 'Z', x: 1, y: 2 },
+		{ value: 'Z', x: 2, y: 0 },
+		{ value: 'L', x: 2, y: 1 },
+		{ value: 'E', x: 2, y: 2 },		
 	]
 	let puzzleStr = '8 7 2 5 4 6 1 3 0';
 	let solutionStr = 'R U L L D D R U R D L U U R D L L U R D L U'
@@ -16,6 +21,17 @@
 
 	let loaded = false;
 
+	const directions = {
+		'U': [-1, 0],
+		'D': [1, 0],
+		'L': [0, -1],
+		'R': [0, 1]
+	}
+
+	let movingInterval;
+
+	let prevPos = [];
+
 	function isSqrd(n) {
 		if (n < 4) return false; // Exclude numbers smaller than 4
 
@@ -23,22 +39,58 @@
 		return (sqrt === Math.floor(sqrt)) ? sqrt : -1;
 	}
 
+	function getMissingIndex(cells) {
+		const helper = new Set(Array.from({ length: size * size }, (_, i) => i));
+		cells.forEach(cell => helper.delete(cell.x * size + cell.y));
+		const left = helper.values().next().value;
+		return [Math.floor(left / size), left % size];
+	}
+
+	function getNeighbors(x, y) {
+		let res = [];
+		if (x > 0) res.push(cells.find(cell => cell.x === x - 1 && cell.y === y));
+		if (x < size - 1) res.push(cells.find(cell => cell.x === x + 1 && cell.y === y));
+		if (y > 0) res.push(cells.find(cell => cell.x === x && cell.y === y - 1));
+		if (y < size - 1) res.push(cells.find(cell => cell.x === x && cell.y === y + 1));
+		return res.filter(cell => cell.x != prevPos[0] && cell.y != prevPos[1]);
+	}
+
 	onMount(() => {
         document.documentElement.style.setProperty('--main', '#ff3e00');
+		movingInterval = setInterval(() => {
+			const [emptyX, emptyY] = getMissingIndex(cells);
+			const neighbors = getNeighbors(emptyX, emptyY);
+			let picked = neighbors[Math.floor(Math.random() * neighbors.length)];
+			picked.x = emptyX;
+			picked.y = emptyY;
+			prevPos = [emptyX, emptyY];
+			cells = cells
+		}, 1200)
 	})
 </script>
 
 <main>
 	<div class="cell-container">
-		{#each Array(size).fill(0) as _, i}
+		{#each Array(size).fill(0) as _, x}
 		<div class="cell-line">
-			{#each Array(size).fill(0) as _, j}
-			<div class="cell" style="width: {100 / size}%">
-				{#if cells[i][j] !== '0'}
-				<div class="cell-in" style="font-size: {puzzleFontSize};">{cells[i][j]}</div>
-				{/if}	
+			{#each Array(size).fill(0) as _, y}
+			<div class="cell" style="width: {100 / size}%"
+				data-x={x}
+				data-y={y}
+			>
 			</div>
 			{/each}
+		</div>
+		{/each}
+		{#each cells as cell}
+		<div class="cell-in"
+			style="
+				top: {(cell.x + .02) * 100 / size}%;
+				left: {(cell.y + .02) * 100 / size}%;
+				width: {96 / size}%;
+				font-size: {puzzleFontSize};
+			">
+			{cell.value}
 		</div>
 		{/each}
 	</div>
@@ -71,11 +123,15 @@
 				return;
 			}
 
-			// cells = puzzle.map((x, i) => {
-				
-			// })
-
-			cells = Array.from({ length: puzzleSize }, (_, i) => Array.from({ length: puzzleSize }, (_, j) => puzzle[i * puzzleSize + j]));
+			clearInterval(movingInterval);
+			cells = puzzle.map((value, i) => {
+				if (value === '0')
+					return
+				const x = Math.floor(i / puzzleSize);
+				const y = i % puzzleSize;
+				return { value, x, y }
+			}).filter(x => x);
+			console.log(cells)
 			size = puzzleSize;
 			loaded = true;
 		}}>Apply</button>
@@ -105,6 +161,7 @@
 	}
 
 	.cell-container {
+		position: relative;
 		display: flex;
 		flex-direction: column;
 		height: 80%;
@@ -128,17 +185,17 @@
 
 	.cell-in {
 		position: absolute;
-		width: 96%;
 		aspect-ratio: 1 / 1;
 		background: var(--main);
-		top: 50%;
+		/* top: 50%;
 		left: 50%;
-		transform: translate(-50%, -50%);
+		transform: translate(-50%, -50%); */
 		color: white;
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		border-radius: 0.2rem;
+		transition: .5s;
 	}
 	
 	.inputs {
