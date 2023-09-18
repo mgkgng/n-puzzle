@@ -1,7 +1,21 @@
 #include "puzzle.hpp"
 
-unique_ptr<Puzzle> parse(const string &filename) {
+unique_ptr<Puzzle> parse(const int ac, const char *av[]) {
     unique_ptr<Puzzle> res;
+
+    if (ac == 1) {
+        auto grid = generate(4);
+        res = make_unique<Puzzle>(4);
+        res->grid = grid;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++)
+                res->initialGrid.push_back(grid[i][j]);
+        }
+        return res;
+    }
+
+    const string filename = string(av[1]);
+
     string line, puzzleStr;
     int rowCount = 0;
 

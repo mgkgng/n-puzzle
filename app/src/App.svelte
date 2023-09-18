@@ -19,8 +19,10 @@
 	]
 	let initialState;
 	let solutionState;
-	let puzzleStr = '8 1 6 7 0 4 3 5 2';
-	let solutionStr = 'D L U U R R D D L U U R D D L U U R D L'
+	// let puzzleStr = '8 1 6 7 0 4 3 5 2';
+	// let solutionStr = 'D L U U R R D D L U U R D D L U U R D L'
+	let puzzleStr = '9 4 3 14 5 8 0 13 1 7 15 12 10 2 11 6'
+	let solutionStr = 'D D L U R U L L D R R U L D R R U L D D L U U R U L L D R R D R U U L D L U R D D L U R R D D L L U';
 	let puzzleFontSize;
 	$: puzzleFontSize = `${Math.floor(20 / size)}rem`
 
@@ -41,7 +43,7 @@
 
 	let prevPos = [];
 
-	let emojis = ['🧠', '🐊', '🎃', '👁️', '​💀​', '🫀', '​🐐', '​🔥', '⭐', '​👾', '🧟‍♂️', '​​🪲', '​🐲', '🫐', '​🍥', '​🌚', '​💣', '🌸', '​💩'​]
+	let emojis = ['🧠', '🐊', '🎃', '👁️', '​💀​', '🫀', '​🐐', '​🔥', '⭐', '​👾', '🧟‍♂️', '​​🪲', '​🐲', '🫐', '​🍥', '​🌚', '​💣', '🌸', '​💩']
 
 	function isSqrd(n) {
 		if (n < 4) return false; // Exclude numbers smaller than 4

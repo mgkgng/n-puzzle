@@ -2,10 +2,8 @@
 
 unique_ptr<Puzzle> puzzle;
 
-int main(int ac, char *av[]) {
-    cout << endl;
-    puzzle = parse(std::string(av[1]));
-
+int main(int ac, const char *av[]) {    
+    puzzle = parse(ac, av);
     cout << *puzzle << endl;
 
     if (not isSolvable(puzzle->initialGrid, puzzle->grid)) {

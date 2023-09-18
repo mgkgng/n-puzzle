@@ -1,9 +1,5 @@
 #include "puzzle.hpp"
 
-int dx[4] = {-1, 1, 0, 0}; // Possible moves in the x cartesian axis
-int dy[4] = {0, 0, -1, 1}; // Possible moves in the y cartesian axis
-char moves[4] = {'U', 'D', 'L', 'R'}; // Char representation of the moves
-
 int findZero(const vector<int> &curr) {
     for (int i = 0; i < puzzle->size * puzzle->size; i++)
         if (curr[i] == 0)
@@ -18,15 +14,7 @@ bool checkDouble(vector<Node *> &path, const vector<int> &curr) {
     return false;
 }
 
-string hashState(const vector<vector<int>> &state) {
-    string hash;
-    for (const auto &row : state)
-        for (int val : row)
-            hash += to_string(val) + ',';
-    return hash;
-}
-
-int after_move(int pos, int dx, int dy) {
+int afterMove(int pos, int dx, int dy) {
     int row = pos / puzzle->size;
     int col = pos % puzzle->size;
     if (not (row + dx >= 0 && row + dx < puzzle->size && col + dy >= 0 && col + dy < puzzle->size))
@@ -65,7 +53,7 @@ vector<Node *> A_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemo
 
         for (int i = 0; i < 4; ++i) { // Generate the children of the current node by swapping the blank tile with the four possible moves
             const auto zeroPos = findZero(curr->state);
-            const auto newPos = after_move(zeroPos, dx[i], dy[i]);
+            const auto newPos = afterMove(zeroPos, dx[i], dy[i]);
 
             if (newPos < 0) continue; // Skip the move if the new position of the blank tile is out of the grid bounds
             auto tmp = curr->state; // If the move is valid create a copy of the current state
@@ -104,7 +92,7 @@ int search(vector<Node *> &path, int g, int threshold, int hChoice, int &totalSt
 
     for (int i = 0; i < 4; ++i) { // Generate the children of the current node by swapping the blank tile with the four possible moves
         const auto zeroPos = findZero(curr->state);
-        const auto newPos = after_move(zeroPos, dx[i], dy[i]);
+        const auto newPos = afterMove(zeroPos, dx[i], dy[i]);
 
         if (newPos < 0) continue;
 
@@ -112,7 +100,6 @@ int search(vector<Node *> &path, int g, int threshold, int hChoice, int &totalSt
         
         tmp[zeroPos] = tmp[newPos];
         tmp[newPos] = 0;
-        // const string tmpHash = hashState(tmp); // Hashing for optimization
         if (checkDouble(path, tmp) == true) continue; // Check if the new state has already been visited to avoid revisiting previously explored states
 
         path.push_back(new Node(tmp, moves[i]));

@@ -16,6 +16,7 @@
 #include <queue>
 #include <functional>
 #include <math.h>
+#include <random>
 
 using namespace std;
 
@@ -23,6 +24,14 @@ bool isSolvable(const vector<int>& state, const vector<vector<int>> &curr);
 int hFunction(int hChoice, const vector<int>& state);
 
 #define VAL(x, max) ((x != max) ? x++ : 0) // The last number of the goal spiral should be 0
+
+const int dx[4] = {-1, 1, 0, 0}; // Possible moves in the x cartesian axis
+const int dy[4] = {0, 0, -1, 1}; // Possible moves in the y cartesian axis
+const char moves[4] = {'U', 'D', 'L', 'R'}; // Char representation of the moves
+
+void printGrid(const vector<vector<int>>& grid);
+vector<vector<int>> createSnail(int size);
+vector<vector<int>> generate(int size);
 
 class Puzzle {
     public:
@@ -54,44 +63,6 @@ class Puzzle {
     }
 
     ~Puzzle() {}
-
-    void printGrid(const vector<vector<int>>& grid) {
-        cout << "Solution Grid (" << grid.size() << "x" << grid.size() << "):"<< endl;
-        for (const auto& row : grid) {
-            for (int val : row)
-                cout << setw(4) << val;
-            cout << endl;
-        }
-        cout << endl;
-    }
-
-    vector<vector<int>> createSnail(int size) {
-        auto res = vector<vector<int>>(size, vector<int>(size, 0));
-        int max = size * size;
-        int val = 1; // The value to be inserted
-        int rowStart = 0, rowEnd = size - 1;
-        int colStart = 0, colEnd = size - 1;
-
-        while (rowStart <= rowEnd && colStart <= colEnd) {
-            for (int j = colStart; j <= colEnd; ++j)
-                res[rowStart][j] = VAL(val, max);
-            ++rowStart;
-
-            for (int i = rowStart; i <= rowEnd; ++i)
-                res[i][colEnd] = VAL(val, max);
-            --colEnd;
-
-            for (int j = colEnd; j >= colStart; --j)
-                res[rowEnd][j] = VAL(val, max);
-            --rowEnd;
-
-            for (int i = rowEnd; i >= rowStart; --i)
-                res[i][colStart] = VAL(val, max);
-            ++colStart;
-        }
-        printGrid(res);
-        return res;
-    }
 
     friend ostream& operator<<(ostream& os, const Puzzle& p);
 };
@@ -128,7 +99,7 @@ struct CompareNodes {
 
 extern unique_ptr<Puzzle> puzzle;
 
-unique_ptr<Puzzle> parse(const string &filename);
+unique_ptr<Puzzle> parse(const int ac, const char *av[]);
 
 inline ostream& operator<<(ostream& os, const Puzzle& p) {
     os << "Initial Grid (" << p.size << "x" << p.size << "):"<< endl;
