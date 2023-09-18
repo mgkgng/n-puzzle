@@ -4,6 +4,9 @@
 
 	let size = 3;
 	let errorMsg = '';
+	let solveMsg = '';
+	let solved = false;
+	let thumbX, thumbY
 	let cells = [
 		{ value: 'N', x: 0, y: 0 },
 		{ value: '-', x: 0, y: 1 },
@@ -15,6 +18,7 @@
 		{ value: 'E', x: 2, y: 2 },		
 	]
 	let initialState;
+	let solutionState;
 	let puzzleStr = '8 1 6 7 0 4 3 5 2';
 	let solutionStr = 'D L U U R R D D L U U R D D L U U R D L'
 	let puzzleFontSize;
@@ -66,6 +70,42 @@
 		return [x + dx, y + dy];
 	}
 
+	function createSnail(size) {
+		let res = Array.from({ length: size }, () => Array.from({ length: size }, () => 0));
+		let val = 1; // The value to be inserted
+		let rowStart = 0, rowEnd = size - 1;
+		let colStart = 0, colEnd = size - 1;
+
+		while (rowStart <= rowEnd && colStart <= colEnd) {
+			for (let j = colStart; j <= colEnd; ++j)
+				res[rowStart][j] = val++;
+			++rowStart;
+
+			for (let i = rowStart; i <= rowEnd; ++i)
+				res[i][colEnd] = val++;
+			--colEnd;
+
+			for (let j = colEnd; j >= colStart; --j)
+				res[rowEnd][j] = val++;
+			--rowEnd;
+
+			for (let i = rowEnd; i >= rowStart; --i)
+				res[i][colStart] = val++;
+			++colStart;
+		}
+		return res;
+	}
+
+	function compareResult() {
+		for (let cell of cells) {
+			if (parseInt(cell.value) !== solutionState[cell.x][cell.y]) {
+				errorMsg = 'Solution is not valid (Wrong Result)'
+				return
+			}
+		}
+		solveMsg = 'Puzzle solved! 👏'
+	}
+
 	onMount(() => {
         document.documentElement.style.setProperty('--main', '#ff3e00');
 		movingInterval = setInterval(() => {
@@ -89,6 +129,9 @@
 				data-x={x}
 				data-y={y}
 			>
+				{#if solved && x === thumbX && y === thumbY}
+				<div class="thumb" style="font-size: {puzzleFontSize};">👍</div>
+				{/if}
 			</div>
 			{/each}
 		</div>
@@ -116,6 +159,8 @@
 			<input type="text" bind:value={solutionStr} />
 		</label>
 		<button class="apply-btn" on:click={() => {
+			errorMsg = '';
+
 			if (!puzzleStr.length || !solutionStr.length) {
 				errorMsg = 'Please fill in both fields';
 				return;
@@ -141,9 +186,10 @@
 				const y = i % puzzleSize;
 				return { value, x, y }
 			}).filter(x => x);
-			initialState = cells;
 			size = puzzleSize;
 			loaded = true;
+			initialState = cells;
+			solutionState = createSnail(size)
 		}}>Apply</button>
 		{:else}
 		<div class="solution-wrapper">
@@ -160,6 +206,10 @@
 				movingInterval = setInterval(() => {
 					if (++solutionIndex>= solution.length) {
 						clearInterval(movingInterval);
+						playing = false;
+						compareResult();
+						solved = true;
+						[thumbX, thumbY] = getMissingIndex(cells);
 						return;
 					}
 
@@ -177,13 +227,24 @@
 					next.x = emptyX;
 					next.y = emptyY;
 					cells = cells;
-				}, 800)
+				}, 400)
 			}}
 			on:pause={() => clearInterval(movingInterval)}
 			on:stop={() => {
 				clearInterval(movingInterval);
 				cells = initialState;
+				solutionIndex = -1;
+				playing = false;
+				solved = false;
+				solveMsg = '';
+				errorMsg = '';
 			}}/>
+		{/if}
+		{#if errorMsg}
+		<p class="msg" style="color: red; font-size: .9rem;">{errorMsg}</p>
+		{/if}
+		{#if solveMsg}
+		<p class="msg" style="color: green; font-size: .9rem;">{solveMsg}</p>
 		{/if}
 	</div>
 </main>
@@ -239,7 +300,7 @@
 		justify-content: center;
 		align-items: center;
 		border-radius: 0.2rem;
-		transition: .5s;
+		transition: .2s;
 	}
 	
 	.inputs {
@@ -296,6 +357,16 @@
 		background: #fff;
 		border: 1px solid #451a03;
 		margin: 0;
+	}
+
+	.thumb {
+		position: absolute;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		height: 100%;
+
 	}
 
 	@media (min-width: 640px) {
