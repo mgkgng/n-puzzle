@@ -11,17 +11,41 @@ int main(int ac, const char *av[]) {
         return 1;
     }
 
-    int hChoice;
-    cout << "Choose an heuristic function: [1]-Manhattan, [2]-Hamming, [3]-Euclidian, [4]-Manhattan + Linear Conflict" << endl;
-    cin >> hChoice;
-    cout << endl;
-
     int searchChoice;
-    cout << "Choose a search algorithm: [1]-IDA*, [2]-A*:" << endl;
-    cin >> searchChoice;
-    cout << endl;
+    while (true) {
+        cout << "Search Algorithm:" << endl;
+        cout << "1 -> Iterative Deepening A* (IDA*)" << endl;
+        cout << "2 -> A*" << endl;
+        cout << "Please type a number and press Enter: ";
+        cin >> searchChoice;
+        cout << endl;
 
-    cout << "Solving the puzzle..." << endl << endl;
+        if (searchChoice == 1 || searchChoice == 2) {
+            break;
+        } else {
+            cout << "Invalid search algorithm choice! Please try again." << endl << endl;
+        }
+    }
+
+    int hChoice;
+    while (true) {
+        cout << "Heuristic Function:" << endl;
+        cout << "1 -> Manhattan" << endl;
+        cout << "2 -> Euclidean" << endl;
+        cout << "3 -> Hamming" << endl;
+        cout << "4 -> Linear Conflict" << endl;
+        cout << "Please type a number and press Enter: ";
+        cin >> hChoice;
+        cout << endl;
+
+        if (hChoice >= 1 && hChoice <= 4) {
+            break;
+        } else {
+            cout << "Invalid heuristic function choice! Please try again." << endl << endl;
+        }
+    }
+
+    cout << "Solving the puzzle, please wait..." << endl << endl;
 
     vector<char> solution;
 
@@ -34,12 +58,8 @@ int main(int ac, const char *av[]) {
 
     if (searchChoice == 1)
         path = IDA_star(hChoice, totalStatesVisited, maxStatesInMemory);
-    else if (searchChoice == 2)
+    else
         path = A_star(hChoice, totalStatesVisited, maxStatesInMemory);
-    else {
-        cout << "Invalid search algorithm choice!" << endl;
-        return 1;
-    }
 
     auto endTime = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(endTime - startTime);
@@ -51,8 +71,21 @@ int main(int ac, const char *av[]) {
         cout << "Maximum number of states in memory: " << maxStatesInMemory << endl;
         cout << "Number of moves required: " << path.size() - 1<< endl;
         cout << "Ordered sequence: ";
-        for (int i = 1; i < path.size(); i++)
+        for (unsigned int i = 1; i < path.size(); i++)
             cout << path[i]->move << " ";
+        //// Print the ordered sequence of moves and the corresponding grid
+        //cout << "Ordered sequence: " << endl;
+        //for (unsigned int i = 1; i < path.size(); i++) {
+        //    cout << endl;
+        //    cout << path[i]->move << ":";
+        //    cout << endl;
+        //    for (int j = 0; j < puzzle->size; j++) {
+        //        for (int k = 0; k < puzzle->size; k++) {
+        //            cout << setw(4) << path[i]->state[j * puzzle->size + k];
+        //        }
+        //        cout << endl;
+        //    }
+        //}
         cout << endl;
         cout << "Time taken: " << duration.count() << " milliseconds" << endl;
     }

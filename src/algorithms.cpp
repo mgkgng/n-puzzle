@@ -33,6 +33,9 @@ vector<Node *> A_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemo
     pq.push(root);
 
     vector<Node*> path; // Store the path from the root node to the current node
+
+    unordered_set<vector<int>, VectorHash> visitedStates; // Store the visited states to avoid revisiting previously explored states
+
     while (not pq.empty()) {
         int currentStatesInMemory = pq.size();
         if (currentStatesInMemory > maxStatesInMemory)
@@ -40,6 +43,9 @@ vector<Node *> A_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemo
         totalStatesVisited++;
         Node* curr = pq.top();
         pq.pop();
+
+        if (visitedStates.find(curr->state) != visitedStates.end()) continue; // Skip this state if it has been visited
+        visitedStates.insert(curr->state); // Mark the current state as visited
 
         if (curr->state == puzzle->goalTest) {
             path.clear();
@@ -60,7 +66,7 @@ vector<Node *> A_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemo
             tmp[zeroPos] = tmp[newPos]; // Apply the move of the blank tile to the copy
             tmp[newPos] = 0; // Set the new position of the blank tile to 0
 
-            if (checkDouble(path, tmp) == true) continue; // Check if the new state has already been visited to avoid revisiting previously explored states
+            if (visitedStates.find(tmp) != visitedStates.end()) continue; // Check if the new state has already been visited to avoid revisiting previously explored states
 
             int h = hFunction(hChoice, tmp);
             int g = curr->g + 1;

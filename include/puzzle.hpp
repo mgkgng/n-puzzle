@@ -67,6 +67,17 @@ class Puzzle {
     friend ostream& operator<<(ostream& os, const Puzzle& p);
 };
 
+// Custom hash function for vectors
+struct VectorHash {
+    size_t operator()(const vector<int>& vec) const {
+        hash<int> hasher;
+        size_t seed = 0;
+        for (int i : vec)
+            seed ^= hasher(i) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        return seed;
+    }
+};
+
 struct Node {
     vector<int> state;
     char move;
