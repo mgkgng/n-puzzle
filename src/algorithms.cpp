@@ -7,13 +7,6 @@ int findZero(const vector<int> &curr) {
     return -1;
 }
 
-bool checkDouble(vector<Node *> &path, const vector<int> &curr) {
-    for (auto p : path)
-        if (p->state == curr)
-            return true;
-    return false;
-}
-
 int afterMove(int pos, int dx, int dy) {
     int row = pos / puzzle->size;
     int col = pos % puzzle->size;
@@ -84,8 +77,11 @@ vector<Node *> A_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemo
     return vector<Node*>(); // Return empty vector if no solution is found
 }
 
-int search(vector<Node *> &path, int g, int threshold, int hChoice, int &totalStatesVisited, int &maxStatesInMemory) {
-    Node *curr = path[path.size() - 1];
+int search(Node* curr, int g, int threshold, int hChoice, int &totalStatesVisited, int &maxStatesInMemory, unordered_set<vector<int>, VectorHash>& visitedStates, vector<Node*>& path) {
+    
+    if (visitedStates.find(curr->state) != visitedStates.end()) return numeric_limits<int>::max(); // Return a high value to prune this path since it has already been visited
+    visitedStates.insert(curr->state); // Mark the current state as visited
+
     float f = g + hFunction(hChoice, curr->state);
 
     if (f > threshold)
@@ -103,10 +99,11 @@ int search(vector<Node *> &path, int g, int threshold, int hChoice, int &totalSt
         if (newPos < 0) continue;
 
         auto tmp = curr->state;
-        
+
         tmp[zeroPos] = tmp[newPos];
         tmp[newPos] = 0;
-        if (checkDouble(path, tmp) == true) continue; // Check if the new state has already been visited to avoid revisiting previously explored states
+
+        if (visitedStates.find(tmp) != visitedStates.end()) continue; // Check if the new state has already been visited to avoid revisiting previously explored states
 
         path.push_back(new Node(tmp, moves[i]));
         totalStatesVisited++;
@@ -114,7 +111,7 @@ int search(vector<Node *> &path, int g, int threshold, int hChoice, int &totalSt
         if (currentStatesInMemory > maxStatesInMemory)
             maxStatesInMemory = currentStatesInMemory;
 
-        int t = search(path, g + 1, threshold, hChoice, totalStatesVisited, maxStatesInMemory); 
+        int t = search(path.back(), g + 1, threshold, hChoice, totalStatesVisited, maxStatesInMemory, visitedStates, path);
         if (t == -1) // Solution found
             return -1;
         if (t < min)
@@ -122,28 +119,27 @@ int search(vector<Node *> &path, int g, int threshold, int hChoice, int &totalSt
         path.pop_back();
     }
 
-
     return min;
 }
 
 vector<Node *> IDA_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemory) {
     vector<int> hello;
-
     for (auto row : puzzle->grid)
         for (auto e : row)
             hello.push_back(e);
 
     Node *root = new Node(hello, 'S');
     int threshold = hFunction(hChoice, root->state);
-    vector<Node *> path = { root };
 
     while (true) {
-        int t = search(path, 0, threshold, hChoice, totalStatesVisited, maxStatesInMemory);
+        vector<Node *> path = { root }; // Store the path from the root node to the current node
+        unordered_set<vector<int>, VectorHash> visitedStates; // Store the visited states to avoid revisiting previously explored states
+
+        int t = search(root, 0, threshold, hChoice, totalStatesVisited, maxStatesInMemory, visitedStates, path);
         if (t == -1)
             return path;
         else if (t == numeric_limits<int>::max())
             return vector<Node *>();
         threshold = t;
-    } 
-    return path;
+    }
 }
