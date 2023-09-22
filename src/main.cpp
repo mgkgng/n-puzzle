@@ -14,17 +14,16 @@ int main(int ac, const char *av[]) {
     int searchChoice;
     while (true) {
         cout << "Search Algorithm:" << endl;
-        cout << "1 -> Iterative Deepening A* (IDA*)" << endl;
-        cout << "2 -> A*" << endl;
+        cout << "1 -> A*" << endl;
+        cout << "2 -> Iterative Deepening A* (IDA*)" << endl;
         cout << "Please type a number and press Enter: ";
         cin >> searchChoice;
         cout << endl;
 
-        if (searchChoice == 1 || searchChoice == 2) {
+        if (searchChoice == 1 || searchChoice == 2)
             break;
-        } else {
+        else
             cout << "Invalid search algorithm choice! Please try again." << endl << endl;
-        }
     }
 
     int hChoice;
@@ -38,10 +37,27 @@ int main(int ac, const char *av[]) {
         cin >> hChoice;
         cout << endl;
 
-        if (hChoice >= 1 && hChoice <= 4) {
+        if (hChoice >= 1 && hChoice <= 4)
             break;
-        } else {
+        else
             cout << "Invalid heuristic function choice! Please try again." << endl << endl;
+    }
+
+    int gChoice;
+    if (searchChoice == 1) {
+        while (true) {
+            cout << "Search Type:" << endl;
+            cout << "1 -> Default (Mandatory part)" << endl;
+            cout << "2 -> Uniform-Cost (Bonus part)" << endl;
+            cout << "3 -> Greedy Search (Bonus part)" << endl;
+            cout << "Please type a number and press Enter: ";
+            cin >> gChoice;
+            cout << endl;
+
+            if (gChoice >= 1 and gChoice <= 3)
+                break;
+            else
+                cout << "Invalid search type choice! Please try again." << endl << endl;
         }
     }
 
@@ -56,10 +72,14 @@ int main(int ac, const char *av[]) {
     int totalStatesVisited = 0;
     int maxStatesInMemory = 0;
 
-    if (searchChoice == 1)
+    if (searchChoice == 1 and gChoice == 1)
+        path = A_star(hChoice, totalStatesVisited, maxStatesInMemory, false, false);
+    else if (searchChoice == 1 and gChoice == 2)
+        path = A_star(hChoice, totalStatesVisited, maxStatesInMemory, true, false);
+    else if (searchChoice == 1 and gChoice == 3)
+        path = A_star(hChoice, totalStatesVisited, maxStatesInMemory, false, true);
+    else if (searchChoice == 2)
         path = IDA_star(hChoice, totalStatesVisited, maxStatesInMemory);
-    else
-        path = A_star(hChoice, totalStatesVisited, maxStatesInMemory);
 
     auto endTime = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(endTime - startTime);

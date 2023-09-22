@@ -99,7 +99,7 @@ struct Node {
     }
 };
 
-vector<Node *> A_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemory);
+vector<Node *> A_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemory, bool uniformCost, bool greedySearch);
 vector<Node *> IDA_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemory);
 
 struct CompareNodes {
