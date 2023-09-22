@@ -1,6 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import Player from './Player.svelte';
+    import { fly } from 'svelte/transition';
 
 	let size = 3;
 	let errorMsg = '';
@@ -43,7 +44,18 @@
 
 	let prevPos = [];
 
-	let emojis = ['🧠', '🐊', '🎃', '👁️', '​💀​', '🫀', '​🐐', '​🔥', '⭐', '​👾', '🧟‍♂️', '​​🪲', '​🐲', '🫐', '​🍥', '​🌚', '​💣', '🌸']
+	let emojis = ['🧠', '🐊', '🎃', '👁️', '​💀​', '🫀', '​🐐', '​🔥', '⭐', '​👾', '​​🪲', '​🐲', '🫐', '​🍥', '​🌚', '​💣', '🌸']
+	emojis = emojis.sort((a, b) => 0.5 - Math.random());
+
+	let state = 0;
+	let algorithmChoice = 0;
+	let heuristicsChoice = 0;
+	let request = {};
+
+	function back() {
+		state--;
+		errorMsg = "";
+	}
 
 	function isSqrd(n) {
 		if (n < 4) return false; // Exclude numbers smaller than 4
@@ -134,7 +146,7 @@
 				data-y={y}
 			>
 				{#if !loaded}
-				<div class="emoji" style="font-size: {puzzleFontSize};">{emojis[Math.floor(Math.random() * emojis.length)]}</div>
+				<div class="emoji" style="font-size: {puzzleFontSize};">{emojis[x * size + y]}</div>
 				{/if}
 				{#if solved && x === thumbX && y === thumbY}
 				<div class="emoji" style="font-size: {puzzleFontSize};">👏</div>
@@ -155,7 +167,94 @@
 		</div>
 		{/each}
 	</div>
-	<div class="inputs">
+	<div class="left">
+		{#if state == 0}
+		<button on:click={() => state++}>Start!</button>
+		{:else if state == 1}
+		<div in:fly={{x: -100}}>
+			<h2>Puzzle?</h2>
+			<div style="display: flex; gap: .2em;">
+				<button on:click={() => state += 2}>generate</button>
+				<button on:click={() => state++}>parse</button>
+			</div>
+		</div>
+		{:else if state == 2}
+		<button class="back-btn" on:click={back}>&lt;</button>
+		<div in:fly={{x: -100}}>
+			<h2>Your puzzle in string:</h2>
+			<input type="text" bind:value={puzzleStr}>
+			<button on:click={() => {
+				errorMsg = '';
+
+				if (!puzzleStr.length) {
+					errorMsg = 'Please fill in the field.';
+					return;
+				}
+
+				const puzzle = puzzleStr.split(' ').filter(x => x.length);
+				puzzleStr = puzzle.join(' ');
+
+				const puzzleSize = isSqrd(puzzle.length);
+				if (puzzleSize < 0) {
+					errorMsg = 'Puzzle should be n x n size (n > 1)';
+					return;
+				}
+				// size = puzzleSize;
+				state++;
+			}}>Next</button>
+			{#if errorMsg}
+			<p class="msg" style="color: red; font-size: .9rem;">{errorMsg}</p>
+			{/if}
+		</div>
+		{:else if state == 3}
+		<button class="back-btn" on:click={back}>&lt;</button>
+		<div in:fly={{x: -100}} style="display: flex; flex-direction: column; gap: .3em; justify-content: center; align-items: center">
+			<div>
+				<h2 style="margin: 0.5em;">Choose your algorithm:</h2>
+				<div>
+					<input type="radio" id="a" bind:group={algorithmChoice} value={1}>
+					<label class="radio-label" for="a">A*</label>
+					<input type="radio" id="ida" bind:group={algorithmChoice} value={2}>
+					<label class="radio-label" for="ida">Iterative Deepening A*</label>
+				</div>
+			</div>
+			<div>
+				<h2 style="margin: 0.5em;">Choose your heuristics:</h2>
+				<div class="heuristics">
+					<input type="radio" id="mht" bind:group={heuristicsChoice} value={1}>
+					<label class="radio-label" for="mht">Manhattan</label>
+					<input type="radio" id="euc" bind:group={heuristicsChoice} value={2}>
+					<label class="radio-label" for="euc">Euclidean</label>
+					<input type="radio" id="ham" bind:group={heuristicsChoice} value={3}>
+					<label class="radio-label" for="ham">Hamming</label>
+					<input type="radio" id="lico" bind:group={heuristicsChoice} value={4}>
+					<label class="radio-label" for="lico">Linear Conflict</label>
+				</div>
+			</div>
+			<button style="margin-top: 1.2em; width: 6rem;" on:click={() => {
+				errorMsg = ""
+				if (algorithmChoice == 0) {
+					errorMsg = "You must choose an algorithm"
+					return
+				}
+				if (heuristicsChoice == 0) {
+					errorMsg = "You must choose a heuristics"
+					return
+				}
+				state++
+			}}>Next</button>
+			{#if errorMsg}
+			<p class="msg" style="color: red; font-size: .9rem;">{errorMsg}</p>
+			{/if}
+		</div>
+		{:else if state == 4}
+		<div in:fly={{x: -100}} style="background: white; padding: 1.4rem 4.4rem; padding-bottom: .8rem; border-radius: .2em; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+			<div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+			<p style="color: var(--main); margin: .6rem;">solving...</p>
+		</div>
+		{/if}
+	</div>
+	<!-- <div class="inputs">
 		{#if !loaded}
 		<label>
 			Puzzle:
@@ -253,13 +352,27 @@
 		{#if solveMsg}
 		<p class="msg" style="color: green; font-size: .9rem;">{solveMsg}</p>
 		{/if}
-	</div>
+	</div> -->
 </main>
 
 <style>
 	* {
 		user-select: none;
 		font-family: Podkova;
+	}
+
+	button {
+		cursor: pointer;
+		border-radius: .1rem;
+		background: var(--main); 
+		color: white; 
+		border: none; 
+		padding: 0.3rem 1rem;
+
+	}
+
+	button:hover {
+		filter: brightness(90%);
 	}
 
 	main {
@@ -308,6 +421,24 @@
 		align-items: center;
 		border-radius: 0.2rem;
 		transition: .2s;
+	}
+
+	.left {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		min-width: 18rem;
+		width: 18rem;
+		height: 80%;
+	}
+
+	.back-btn {
+		position: absolute;
+		top: 0; 
+		left: 0;
+
 	}
 	
 	.inputs {
@@ -376,6 +507,65 @@
 		height: 100%;
 
 	}
+
+	input[type="radio"] {
+		display: none;
+	}
+
+	.radio-label {
+		border: 2px solid var(--main);
+		border-radius: .2rem;
+		background: white;
+		padding: .2rem .5rem;
+	}
+
+	input[type="radio"]:checked + .radio-label {
+		background: var(--main);
+		color: white;
+	}
+
+	.heuristics {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		grid-gap: .2em;
+	}
+
+	.lds-ring {
+		display: inline-block;
+		position: relative;
+		width: 40px;
+		height: 40px;
+	}
+	.lds-ring div {
+		box-sizing: border-box;
+		display: block;
+		position: absolute;
+		width: 40px;
+		height: 40px;
+		/* margin: 8px; */
+		border: 6px solid #FF5322;
+		border-radius: 50%;
+		animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+		border-color: #f86036 transparent transparent transparent;
+	}
+	.lds-ring div:nth-child(1) {
+		animation-delay: -0.45s;
+	}
+	.lds-ring div:nth-child(2) {
+		animation-delay: -0.3s;
+	}
+	.lds-ring div:nth-child(3) {
+		animation-delay: -0.15s;
+	}
+	@keyframes lds-ring {
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
+	}
+
 
 	@media (max-width: 820px) {
 		.inputs {
