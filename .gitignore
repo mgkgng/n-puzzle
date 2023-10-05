@@ -1,6 +1,8 @@
 .vscode/
 .DS_Store
 obj/
-n_puzzle
 test
 wasm/
+
+node_modules/
+public/build/

@@ -10,11 +10,12 @@ OBJECTS = $(SOURCES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 EXEC = n_puzzle
 
 # WebAssembly settings
-WASM_DIR = wasm
+WASM_DIR = ../public/wasm
 WASM_EXEC = n_puzzle_wasm
-WASM_FLAGS = -s WASM=1 -s "EXPORTED_RUNTIME_METHODS=['cwrap']"
+WASM_FLAGS = -s WASM=1 -s "EXPORTED_RUNTIME_METHODS=['callMain']" -s INVOKE_RUN=0 -sALLOW_MEMORY_GROWTH=1 -s EXIT_RUNTIME=1 
 
-all: $(OBJ_DIR) $(EXEC)
+# all: $(OBJ_DIR) $(EXEC)
+all : app
 
 $(EXEC): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $^
@@ -25,10 +26,8 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
-# WebAssembly targets
 app: $(WASM_DIR)
-	emcc $(CXXFLAGS) $(WASM_FLAGS) -o $(WASM_DIR)/$(WASM_EXEC).js $(SOURCES)
-	cp -R $(WASM_DIR) app/public/wasm
+	emcc $(CXXFLAGS) $(WASM_FLAGS) -o $(WASM_DIR)/$(WASM_EXEC).js $(SOURCES) -O3
 
 $(WASM_DIR):
 	mkdir -p $(WASM_DIR) 

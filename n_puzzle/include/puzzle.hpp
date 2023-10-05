@@ -110,7 +110,7 @@ struct CompareNodes {
 
 extern unique_ptr<Puzzle> puzzle;
 
-unique_ptr<Puzzle> parse(const int ac, const char *av[]);
+unique_ptr<Puzzle> parse(const int ac, string puzzleStr);
 
 inline ostream& operator<<(ostream& os, const Puzzle& p) {
     os << "Initial Grid (" << p.size << "x" << p.size << "):"<< endl;

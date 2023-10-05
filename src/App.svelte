@@ -50,7 +50,12 @@
 	let state = 0;
 	let algorithmChoice = 0;
 	let heuristicsChoice = 0;
+	let strategyChoice = 0;
 	let request = {};
+
+	let WASM_SRC_DIR = 'wasm/n_puzzle_wasm.js'
+	let wasmOutput = []
+	let wasmArgs = []
 
 	function back() {
 		state--;
@@ -121,6 +126,33 @@
 		}
 		solveMsg = 'Puzzle solved!'
 	}
+
+	function loadWasm() {
+		return new Promise((resolve, reject) => {
+			if (window.Module) {
+				resolve(window.Module); // if already loaded
+				return;
+			}
+
+			window.Module = {
+				onRuntimeInitialized: () => {
+					resolve(window.Module);
+				},
+				print: (text) => {
+					console.log(text)
+					wasmOutput = [...wasmOutput, text]
+					console.log(wasmOutput)
+				},
+			}
+
+			const script = document.createElement('script');
+			script.src = WASM_SRC_DIR;
+			script.onerror = reject;
+			document.head.appendChild(script);
+
+		});
+	}
+
 
 	onMount(() => {
         document.documentElement.style.setProperty('--main', '#ff3e00');
@@ -231,6 +263,17 @@
 					<label class="radio-label" for="lico">Linear Conflict</label>
 				</div>
 			</div>
+			<div>
+				<h2 style="margin: 0.5em;">Choose your search strategy:</h2>
+				<div class="strategy">
+					<input type="radio" id="std" bind:group={strategyChoice} value={1}>
+					<label class="radio-label" for="std">Standard</label>
+					<input type="radio" id="uc" bind:group={strategyChoice} value={2}>
+					<label class="radio-label" for="uc">Uniform-Cost</label>
+					<input type="radio" id="gdy" bind:group={strategyChoice} value={3}>
+					<label class="radio-label" for="gdy">Greedy</label>
+				</div>
+			</div>
 			<button style="margin-top: 1.2em; width: 6rem;" on:click={() => {
 				errorMsg = ""
 				if (algorithmChoice == 0) {
@@ -241,7 +284,24 @@
 					errorMsg = "You must choose a heuristics"
 					return
 				}
+				if (strategyChoice == 0) {
+					errorMsg = "You must choose a strategy"
+					return
+				}
+
 				state++
+
+				wasmArgs = [
+					algorithmChoice.toString(),
+					heuristicsChoice.toString(),
+					strategyChoice.toString(),
+					puzzleStr
+				]
+
+				loadWasm().then(module => {
+					module.callMain(wasmArgs);
+				});
+
 			}}>Next</button>
 			{#if errorMsg}
 			<p class="msg" style="color: red; font-size: .9rem;">{errorMsg}</p>
@@ -256,14 +316,6 @@
 	</div>
 	<!-- <div class="inputs">
 		{#if !loaded}
-		<label>
-			Puzzle:
-			<input type="text" bind:value={puzzleStr} />
-		</label>
-		<label>
-			Solution:
-			<input type="text" bind:value={solutionStr} />
-		</label>
 		<button class="apply-btn" on:click={() => {
 			errorMsg = '';
 
