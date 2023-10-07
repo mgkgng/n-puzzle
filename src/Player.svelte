@@ -7,12 +7,6 @@
 </script>
 
 <div class="player">
-    <!-- <button on:click={() => dispatch('first')}>
-        <img src="icons/double_arrow_left.svg" alt="dal">
-    </button>
-    <button on:click={() => dispatch('prev')}>
-        <img src="icons/arrow_prev.svg" alt="ap">
-    </button> -->
     <button on:click={() => {
         dispatch((playing) ? 'pause' : 'play')
         playing = !playing
@@ -26,12 +20,6 @@
     <button on:click={() => dispatch('stop')}>
         <img src="icons/stop.svg" alt="stop">
     </button>
-    <!-- <button on:click={() => dispatch('next')}>
-        <img src="icons/arrow_next.svg" alt="an">
-    </button>
-    <button on:click={() => dispatch('last')}>
-        <img src="icons/double_arrow_right.svg" alt="dar">
-    </button> -->
 </div>
 
 <svelte:window
@@ -55,6 +43,7 @@
     .player {
         display: flex;
         gap: .2rem;
+        margin-top: .3rem;
     }
 
     button {

@@ -1,6 +1,6 @@
 #include "puzzle.hpp"
 
-void printGrid(const vector<vector<int>>& grid) {
+inline void printGrid(const vector<vector<int>>& grid) {
     for (const auto& row : grid) {
         for (int val : row)
             cout << setw(4) << val;

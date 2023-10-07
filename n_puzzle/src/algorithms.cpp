@@ -84,9 +84,7 @@ vector<Node *> A_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemo
             pq.push(newNode);
         }
     }
-
-    cout << "Total states visited: " << totalStatesVisited << endl;
-
+    
     return vector<Node*>(); // Return empty vector if no solution is found
 }
 

@@ -3,6 +3,11 @@
 	src: url('/Podkova-Regular.ttf');
 }
 
+@font-face {
+	font-family: 'Podkova-ExtraBold';
+	src: url('/Podkova-ExtraBold.ttf');
+}
+
 html, body {
 	position: relative;
 	width: 100%;

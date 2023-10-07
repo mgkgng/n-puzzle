@@ -10,16 +10,15 @@ int main(int ac, const char *av[]) {
     puzzle = parse(ac, string(av[4]));
 
     if (not isSolvable(puzzle->initialGrid, puzzle->grid)) {
-        cout << "ERR#" << "Puzzle not solvable." << endl << endl;
+        cout << "FAILURE" << endl;
+        cout << "MSG#" << "Puzzle not solvable." << endl << endl;
         return 1;
     }
 
     vector<char> solution;
-
     vector<Node*> path;
 
     auto startTime = chrono::high_resolution_clock::now();
-
     int totalStatesVisited = 0;
     int maxStatesInMemory = 0;
 
@@ -35,14 +34,16 @@ int main(int ac, const char *av[]) {
     auto endTime = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(endTime - startTime);
 
-    if (not path.size())
-        cout << "ERR#" << "No solution found." << endl;
-    else {
+    if (not path.size()) {
+        cout << "FAILURE" << endl;
+        cout << "MSG#" << "No solution found." << endl << endl;
+    } else {
+        cout << "SUCCESS" << endl;
         cout << "TSV#" << totalStatesVisited << endl; // Total states visited
         cout << "MNS#" << maxStatesInMemory << endl; // Max number of states in memory
         const string solution = std::accumulate(path.begin() + 1, path.end(), std::string{},
             [](const std::string& acc, auto& p) { return acc + p->move; });
-        cout << "SOL#" << string << endl; // Solution
+        cout << "SOL#" << solution << endl; // Solution
         cout << "TME#" << duration.count() << endl; // Time elapsed
     }
 

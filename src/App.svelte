@@ -5,6 +5,7 @@
 
 	let puzzleSize = 3;
 	let puzzle;
+	let puzzleRes;
 	let errorMsg = '';
 	let solveMsg = '';
 	let solved = false;
@@ -153,6 +154,15 @@
 		solveMsg = 'Puzzle solved!'
 	}
 
+	function parseOutputs(outputs) {
+		let res = {};
+		for (let i = 1; i < outputs.length; i++) {
+			let [key, value] = outputs[i].split('#');
+			res[key] = value;
+		}
+		return res;
+	}
+
 	function loadWasm() {
 		return new Promise((resolve, reject) => {
 			if (window.Module) {
@@ -173,7 +183,6 @@
 			script.src = WASM_SRC_DIR;
 			script.onerror = reject;
 			document.head.appendChild(script);
-
 		});
 	}
 
@@ -192,6 +201,15 @@
 	})
 </script>
 
+<header>
+	<div class="title">
+		<div class="title-wrapper">
+			<h1>N-Puzzle Solver</h1>
+			<img style="height: 50%; transform: translateY(-5%) rotate(10deg);" src="icons/white_puzzle.svg" alt="puzzle">
+		</div>
+	</div>
+
+</header>
 <main>
 	<div class="cell-container">
 		{#each Array(puzzleSize).fill(0) as _, x}
@@ -223,11 +241,11 @@
 		</div>
 		{/each}
 	</div>
-	<div class="left">
+	<div class="state-manager">
 		{#if state == 0}
 		<button on:click={() => state++}>Start!</button>
 		{:else if state == 1}
-		<div in:fly={{x: -100}}>
+		<div in:fly={{x: -100}} style="transform: translateY(-25%);">
 			<h2>Puzzle?</h2>
 			<div style="display: flex; gap: .2em;">
 				<button on:click={() => state += 2}>generate</button>
@@ -263,10 +281,10 @@
 			{/if}
 		</div>
 		{:else if state == 3}
-		<button class="back-btn" on:click={back}>&lt;</button>
+		<button class="back-btn" on:click={() => state -= 2}>&lt;</button>
 		<div in:fly={{x: -100}} style="display: flex; flex-direction: column; gap: .3em; justify-content: center; align-items: center">
 			<div>
-				<h2 style="margin: 0.5em;">Choose your algorithm:</h2>
+				<h3 style="margin: 0.5em;">Choose your algorithm:</h3>
 				<div>
 					<input type="radio" id="a" bind:group={algorithmChoice} value={1}>
 					<label class="radio-label" for="a">A*</label>
@@ -275,7 +293,7 @@
 				</div>
 			</div>
 			<div>
-				<h2 style="margin: 0.5em;">Choose your heuristics:</h2>
+				<h3 style="margin: 0.5em;">Choose your heuristics:</h3>
 				<div class="heuristics">
 					<input type="radio" id="mht" bind:group={heuristicsChoice} value={1}>
 					<label class="radio-label" for="mht">Manhattan</label>
@@ -288,7 +306,7 @@
 				</div>
 			</div>
 			<div>
-				<h2 style="margin: 0.5em;">Choose your search strategy:</h2>
+				<h3 style="margin: 0.5em;">Choose your search strategy:</h3>
 				<div class="strategy">
 					<input type="radio" id="std" bind:group={strategyChoice} value={1}>
 					<label class="radio-label" for="std">Standard</label>
@@ -329,6 +347,10 @@
 
 				loadWasm().then(module => {
 					module.callMain(wasmArgs);
+					if (wasmOutput.length > 0 && wasmOutput[0] == 'SUCCESS')
+						puzzleRes = parseOutputs(wasmOutput)
+					console.log(puzzleRes)
+					state++;
 				});
 
 				clearInterval(movingInterval)
@@ -354,105 +376,125 @@
 			<div class="lds-ring"><div></div><div></div><div></div><div></div></div>
 			<p style="color: var(--main); margin: .6rem;">solving...</p>
 		</div>
+		{:else}
+			<div class="summary">
+				<h3 class="solution-title">Summary</h3>
+				<div class="summary-wrapper">
+					<div class="summary-line">
+						<p>Total visited states:</p>
+						<p>{puzzleRes.TSV}</p>
+					</div>
+					<div class="summary-line">
+						<p>Max number of states:</p>
+						<p>{puzzleRes.MNS}</p>
+					</div>
+					<div class="summary-line">
+						<p>Time elapsed:</p>
+						<p>{puzzleRes.TME}ms</p>
+					</div>
+				</div>
+			</div>
+			<div class="solution-wrapper">
+				<h3 class="solution-title">Solution</h3>
+				<div class="solution">
+					{#if puzzleRes?.SOL}
+						{#each puzzleRes.SOL as step, i}
+						<p class="step" style="{ i == solutionIndex ? "background: var(--main); color: #fff;" : "" }">{step}</p>
+						{/each}
+					{/if}
+				</div>
+			</div>
+			<Player 
+				{playing}
+				on:play={() => {
+					movingInterval = setInterval(() => {
+						if (++solutionIndex>= puzzleRes.SOL.length) {
+							clearInterval(movingInterval);
+							playing = false;
+							compareResult();
+							solved = true;
+							[thumbX, thumbY] = getMissingIndex(cells);
+							return;
+						}
+	
+						const [dx, dy] = directions[puzzleRes.SOL[solutionIndex]];
+						const [emptyX, emptyY] = getMissingIndex(cells);
+	
+						let nextPos = getNextPos(emptyX, emptyY, dx, dy);
+						if (nextPos[0] < 0) {
+							clearInterval(movingInterval);
+							cells = initialState;
+							errorMsg = `Solution is not valid (step ${solutionIndex})`
+							return;
+						}
+						let next = cells.find(cell => cell.x === nextPos[0] && cell.y === nextPos[1]);
+						next.x = emptyX;
+						next.y = emptyY;
+						cells = cells;
+					}, 400)
+				}}
+				on:pause={() => clearInterval(movingInterval)}
+				on:stop={() => {
+					clearInterval(movingInterval);
+					cells = initialState;
+					solutionIndex = -1;
+					playing = false;
+					solved = false;
+					solveMsg = '';
+					errorMsg = '';
+				}}/>
+			{#if errorMsg}
+			<p class="msg" style="color: red; font-size: .9rem;">{errorMsg}</p>
+			{/if}
+			{#if solveMsg}
+			<p class="msg" style="color: green; font-size: .9rem;">{solveMsg}</p>
+			{/if}
 		{/if}
 	</div>
-	<!-- <div class="inputs">
-		{#if !loaded}
-		<button class="apply-btn" on:click={() => {
-			errorMsg = '';
-
-			if (!puzzleStr.length || !solutionStr.length) {
-				errorMsg = 'Please fill in both fields';
-				return;
-			}
-
-			const puzzle = puzzleStr.split(' ').filter(x => x.length);
-			solution = solutionStr.split(' ').filter(x => x.length);
-
-			puzzleStr = puzzle.join(' ');
-			solutionStr = solution.join(' ')
-
-			const puzzleSize = isSqrd(puzzle.length);
-			if (puzzleSize < 0) {
-				errorMsg = 'Puzzle should be n x n size (n > 1)';
-				return;
-			}
-
-			clearInterval(movingInterval);
-			cells = puzzle.map((value, i) => {
-				if (value === '0')
-					return
-				const x = Math.floor(i / puzzleSize);
-				const y = i % puzzleSize;
-				return { value, x, y }
-			}).filter(x => x);
-			size = puzzleSize;
-			loaded = true;
-			initialState = cells;
-			solutionState = createSnail(size)
-		}}>Apply</button>
-		{:else}
-		<div class="solution-wrapper">
-			<h3 class="solution-title">Solution</h3>
-			<div class="solution">
-				{#each solution as step, i}
-				<p class="step" style="{ i == solutionIndex ? "background: var(--main); color: #fff;" : "" }">{step}</p>
-				{/each}
-			</div>
-		</div>
-		<Player 
-			{playing}
-			on:play={() => {
-				movingInterval = setInterval(() => {
-					if (++solutionIndex>= solution.length) {
-						clearInterval(movingInterval);
-						playing = false;
-						compareResult();
-						solved = true;
-						[thumbX, thumbY] = getMissingIndex(cells);
-						return;
-					}
-
-					const [dx, dy] = directions[solution[solutionIndex]];
-					const [emptyX, emptyY] = getMissingIndex(cells);
-
-					let nextPos = getNextPos(emptyX, emptyY, dx, dy);
-					if (nextPos[0] < 0) {
-						clearInterval(movingInterval);
-						cells = initialState;
-						errorMsg = `Solution is not valid (step ${solutionIndex})`
-						return;
-					}
-					let next = cells.find(cell => cell.x === nextPos[0] && cell.y === nextPos[1]);
-					next.x = emptyX;
-					next.y = emptyY;
-					cells = cells;
-				}, 400)
-			}}
-			on:pause={() => clearInterval(movingInterval)}
-			on:stop={() => {
-				clearInterval(movingInterval);
-				cells = initialState;
-				solutionIndex = -1;
-				playing = false;
-				solved = false;
-				solveMsg = '';
-				errorMsg = '';
-			}}/>
-		{/if}
-		{#if errorMsg}
-		<p class="msg" style="color: red; font-size: .9rem;">{errorMsg}</p>
-		{/if}
-		{#if solveMsg}
-		<p class="msg" style="color: green; font-size: .9rem;">{solveMsg}</p>
-		{/if}
-	</div> -->
 </main>
 
 <style>
 	* {
 		user-select: none;
 		font-family: Podkova;
+	}
+
+	header {
+		position: absolute;
+		top: 10%;
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	header h1 {
+		color: white;
+		font-size: 2.2rem;
+		font-family: 'Podkova-ExtraBold';
+		padding: 0;
+		margin: 0;
+	}
+
+	.title-wrapper {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: .5rem;
+
+		background: var(--main);
+		height: 100%;
+
+		border-radius: .1rem;
+		height: 4rem;
+
+	}
+
+	.title {
+		width: 25rem;
+		/* border: 5px dashed var(--main); */
+		border-radius: .2rem;
+		background: white;
 	}
 
 	button {
@@ -486,11 +528,11 @@
 		display: flex;
 		flex-direction: column;
 		min-height: 24rem;
-		height: 80%;
+		height: 60%;
+		transform: translateY(10%);
 		aspect-ratio: 1 / 1;
 		border: 2px solid #78350f;
 		border-radius: .2rem;
-
 	}
 
 	.cell-line {
@@ -517,7 +559,7 @@
 		transition: .2s;
 	}
 
-	.left {
+	.state-manager {
 		position: relative;
 		display: flex;
 		flex-direction: column;
@@ -525,38 +567,39 @@
 		align-items: center;
 		min-width: 18rem;
 		width: 18rem;
-		height: 80%;
+		height: 60%;
+		transform: translateY(10%);
+		background: #fffbeb;
+
 	}
 
 	.back-btn {
 		position: absolute;
-		top: 0; 
-		left: 0;
+		top: 0.2rem; 
+		left: 0.2rem;
 
 	}
 	
-	.inputs {
+	.summary {
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		min-width: 18rem;
-		width: 18rem;
-		height: 80%;
-		border: 2px solid #451a03;
-		border-radius: .2rem;
-		gap: .5rem;
-		background: #fffbeb;
-		padding: 1rem;
+		width: 80%;
 	}
-
-	.apply-btn {
-		width: 5rem;
-		padding: 0.5rem;
-		background: var(--main);
-		color: white;
-		cursor: pointer;
-		border: none;
+	
+	.summary-line {
+		width: 100%;
+		display: grid;
+		grid-template-columns: 50% 50%;
+	}
+	.summary-line p, div {
+		margin: 0;
+	}
+	.summary-wrapper {
+		border: 1px solid black;
+		padding: .5rem;
+		border-radius: .2rem;
 	}
 
 	.solution-wrapper {
@@ -567,6 +610,7 @@
 	}
 
 	.solution-title {
+		width: 5rem;
 		margin: .2rem;
 		padding: .2rem 1.2rem;
 		border: 2px solid #fff;
