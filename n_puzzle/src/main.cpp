@@ -23,7 +23,6 @@ int main(int ac, const char *av[]) {
     int totalStatesVisited = 0;
     int maxStatesInMemory = 0;
 
-    std::cout << "search start" << std::endl;
     if (searchChoice == 1 and gChoice == 1)
         path = A_star(hChoice, totalStatesVisited, maxStatesInMemory, false, false);
     else if (searchChoice == 1 and gChoice == 2)
@@ -37,31 +36,15 @@ int main(int ac, const char *av[]) {
     auto duration = chrono::duration_cast<chrono::milliseconds>(endTime - startTime);
 
     if (not path.size())
-        cout << "No solution found!" << endl;
+        cout << "ERR#" << "No solution found." << endl;
     else {
-        cout << "Total states visited: " << totalStatesVisited << endl;
-        cout << "Maximum number of states in memory: " << maxStatesInMemory << endl;
-        cout << "Number of moves required: " << path.size() - 1<< endl;
-        cout << "Ordered sequence: ";
-        for (unsigned int i = 1; i < path.size(); i++)
-            cout << path[i]->move << " ";
-        //// Print the ordered sequence of moves and the corresponding grid
-        //cout << "Ordered sequence: " << endl;
-        //for (unsigned int i = 1; i < path.size(); i++) {
-        //    cout << endl;
-        //    cout << path[i]->move << ":";
-        //    cout << endl;
-        //    for (int j = 0; j < puzzle->size; j++) {
-        //        for (int k = 0; k < puzzle->size; k++) {
-        //            cout << setw(4) << path[i]->state[j * puzzle->size + k];
-        //        }
-        //        cout << endl;
-        //    }
-        //}
-        cout << endl;
-        cout << "Time taken: " << duration.count() << " milliseconds" << endl;
+        cout << "TSV#" << totalStatesVisited << endl; // Total states visited
+        cout << "MNS#" << maxStatesInMemory << endl; // Max number of states in memory
+        const string solution = std::accumulate(path.begin() + 1, path.end(), std::string{},
+            [](const std::string& acc, auto& p) { return acc + p->move; });
+        cout << "SOL#" << string << endl; // Solution
+        cout << "TME#" << duration.count() << endl; // Time elapsed
     }
-    cout << endl;
 
     return 0;
 }

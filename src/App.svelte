@@ -3,7 +3,8 @@
 	import Player from './Player.svelte';
     import { fly } from 'svelte/transition';
 
-	let size = 3;
+	let puzzleSize = 3;
+	let puzzle;
 	let errorMsg = '';
 	let solveMsg = '';
 	let solved = false;
@@ -20,12 +21,9 @@
 	]
 	let initialState;
 	let solutionState;
-	// let puzzleStr = '8 1 6 7 0 4 3 5 2';
-	// let solutionStr = 'D L U U R R D D L U U R D D L U U R D L'
-	let puzzleStr = '9 4 3 14 5 8 0 13 1 7 15 12 10 2 11 6'
-	let solutionStr = 'D D L U R U L L D R R U L D R R U L D D L U U R U L L D R R D R U U L D L U R D D L U R R D D L L U';
+	let puzzleStr = '';
 	let puzzleFontSize;
-	$: puzzleFontSize = `${Math.floor(20 / size)}rem`
+	$: puzzleFontSize = `${Math.floor(20 / puzzleSize)}rem`
 
 	let loaded = false;
 
@@ -70,51 +68,79 @@
 	}
 
 	function getMissingIndex(cells) {
-		const helper = new Set(Array.from({ length: size * size }, (_, i) => i));
-		cells.forEach(cell => helper.delete(cell.x * size + cell.y));
+		const helper = new Set(Array.from({ length: puzzleSize * puzzleSize }, (_, i) => i));
+		cells.forEach(cell => helper.delete(cell.x * puzzleSize + cell.y));
 		const left = helper.values().next().value;
-		return [Math.floor(left / size), left % size];
+		return [Math.floor(left / puzzleSize), left % puzzleSize];
 	}
 
 	function getNeighbors(x, y) {
 		let res = [];
 		if (x > 0) res.push(cells.find(cell => cell.x === x - 1 && cell.y === y));
-		if (x < size - 1) res.push(cells.find(cell => cell.x === x + 1 && cell.y === y));
+		if (x < puzzleSize - 1) res.push(cells.find(cell => cell.x === x + 1 && cell.y === y));
 		if (y > 0) res.push(cells.find(cell => cell.x === x && cell.y === y - 1));
-		if (y < size - 1) res.push(cells.find(cell => cell.x === x && cell.y === y + 1));
+		if (y < puzzleSize - 1) res.push(cells.find(cell => cell.x === x && cell.y === y + 1));
 		return res.filter(cell => cell.x != prevPos[0] && cell.y != prevPos[1]);
 	}
 
 	function getNextPos(x, y, dx, dy) {
-		if (x + dx < 0 || x + dx >= size || y + dy < 0 || y + dy >= size)
+		if (x + dx < 0 || x + dx >= puzzleSize || y + dy < 0 || y + dy >= puzzleSize)
 			return [-1, -1];
 		return [x + dx, y + dy];
 	}
 
 	function createSnail(size) {
 		let res = Array.from({ length: size }, () => Array.from({ length: size }, () => 0));
-		let val = 1; // The value to be inserted
+
+		const getValue = (val) => val === size * size ? 0 : val;
+		let val = 1;
+
 		let rowStart = 0, rowEnd = size - 1;
 		let colStart = 0, colEnd = size - 1;
 
 		while (rowStart <= rowEnd && colStart <= colEnd) {
 			for (let j = colStart; j <= colEnd; ++j)
-				res[rowStart][j] = val++;
+				res[rowStart][j] = getValue(val++);
 			++rowStart;
 
 			for (let i = rowStart; i <= rowEnd; ++i)
-				res[i][colEnd] = val++;
+				res[i][colEnd] = getValue(val++);
 			--colEnd;
 
 			for (let j = colEnd; j >= colStart; --j)
-				res[rowEnd][j] = val++;
+				res[rowEnd][j] = getValue(val++);
 			--rowEnd;
 
 			for (let i = rowEnd; i >= rowStart; --i)
-				res[i][colStart] = val++;
+				res[i][colStart] = getValue(val++);
 			++colStart;
 		}
 		return res;
+	}
+
+	function createPuzzle(size) {
+		let solution = createSnail(size);
+
+		let zeroPos;
+		for (let i = 0; i < size; i++) {
+			for (let j = 0; j < size; j++) {
+				if (solution[i][j] === 0) {
+					zeroPos = [i, j];
+					break;
+				}
+			}
+		}
+
+		const dirs = Object.values(directions);
+		for (let i = 0; i < 3000; ++i) {
+			let dir = dirs[Math.floor(Math.random() * dirs.length)];
+			let nextPos = getNextPos(zeroPos[0], zeroPos[1], dir[0], dir[1]);
+			if (nextPos[0] < 0) continue;
+			[solution[zeroPos[0]][zeroPos[1]], solution[nextPos[0]][nextPos[1]]] = [solution[nextPos[0]][nextPos[1]], solution[zeroPos[0]][zeroPos[1]]];
+			zeroPos = nextPos;
+		}
+
+		return solution;
 	}
 
 	function compareResult() {
@@ -139,9 +165,7 @@
 					resolve(window.Module);
 				},
 				print: (text) => {
-					console.log(text)
 					wasmOutput = [...wasmOutput, text]
-					console.log(wasmOutput)
 				},
 			}
 
@@ -170,15 +194,15 @@
 
 <main>
 	<div class="cell-container">
-		{#each Array(size).fill(0) as _, x}
+		{#each Array(puzzleSize).fill(0) as _, x}
 		<div class="cell-line">
-			{#each Array(size).fill(0) as _, y}
-			<div class="cell" style="width: {100 / size}%"
+			{#each Array(puzzleSize).fill(0) as _, y}
+			<div class="cell" style="width: {100 / puzzleSize}%"
 				data-x={x}
 				data-y={y}
 			>
 				{#if !loaded}
-				<div class="emoji" style="font-size: {puzzleFontSize};">{emojis[x * size + y]}</div>
+				<div class="emoji" style="font-size: {puzzleFontSize};">{emojis[x * puzzleSize + y]}</div>
 				{/if}
 				{#if solved && x === thumbX && y === thumbY}
 				<div class="emoji" style="font-size: {puzzleFontSize};">👏</div>
@@ -190,9 +214,9 @@
 		{#each cells as cell}
 		<div class="cell-in"
 			style="
-				top: {(cell.x + .02) * 100 / size}%;
-				left: {(cell.y + .02) * 100 / size}%;
-				width: {96 / size}%;
+				top: {(cell.x + .02) * 100 / puzzleSize}%;
+				left: {(cell.y + .02) * 100 / puzzleSize}%;
+				width: {96 / puzzleSize}%;
 				font-size: {puzzleFontSize};
 			">
 			{cell.value}
@@ -226,8 +250,8 @@
 				const puzzle = puzzleStr.split(' ').filter(x => x.length);
 				puzzleStr = puzzle.join(' ');
 
-				const puzzleSize = isSqrd(puzzle.length);
-				if (puzzleSize < 0) {
+				const size = isSqrd(puzzle.length);
+				if (size < 0) {
 					errorMsg = 'Puzzle should be n x n size (n > 1)';
 					return;
 				}
@@ -290,6 +314,11 @@
 				}
 
 				state++
+				if (puzzleStr == '') {
+					puzzleSize = 3
+					puzzle = createPuzzle(puzzleSize).flat()
+					puzzleStr = puzzle.join(' ')
+				}
 
 				wasmArgs = [
 					algorithmChoice.toString(),
@@ -301,6 +330,19 @@
 				loadWasm().then(module => {
 					module.callMain(wasmArgs);
 				});
+
+				clearInterval(movingInterval)
+				cells = puzzle.map((value, i) => {
+					if (value === 0)
+						return
+					const x = Math.floor(i / puzzleSize);
+					const y = i % puzzleSize;
+					return { value, x, y }
+				}).filter(x => x);
+				loaded = true;
+				initialState = cells;
+				solutionState = createSnail(puzzleSize)
+
 
 			}}>Next</button>
 			{#if errorMsg}
