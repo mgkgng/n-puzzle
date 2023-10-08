@@ -7,7 +7,6 @@
 	let puzzle;
 	let puzzleRes;
 	let errorMsg = '';
-	let solveMsg = '';
 	let solved = false;
 	let thumbX, thumbY
 	let cells = [
@@ -28,7 +27,6 @@
 
 	let loaded = false;
 
-	let solution;
 	let solutionIndex = -1;
 	
 	const directions = {
@@ -50,7 +48,6 @@
 	let algorithmChoice = 0;
 	let heuristicsChoice = 0;
 	let strategyChoice = 0;
-	let request = {};
 
 	let WASM_SRC_DIR = 'wasm/n_puzzle_wasm.js'
 	let wasmOutput = []
@@ -151,7 +148,6 @@
 				return
 			}
 		}
-		solveMsg = 'Puzzle solved!'
 	}
 
 	function parseOutputs(outputs) {
@@ -185,7 +181,6 @@
 			document.head.appendChild(script);
 		});
 	}
-
 
 	onMount(() => {
         document.documentElement.style.setProperty('--main', '#ff3e00');
@@ -265,7 +260,7 @@
 					return;
 				}
 
-				const puzzle = puzzleStr.split(' ').filter(x => x.length);
+				puzzle = puzzleStr.split(' ').filter(x => x.length).map(x => parseInt(x));
 				puzzleStr = puzzle.join(' ');
 
 				const size = isSqrd(puzzle.length);
@@ -273,7 +268,7 @@
 					errorMsg = 'Puzzle should be n x n size (n > 1)';
 					return;
 				}
-				// size = puzzleSize;
+				// puzzleSize = size;
 				state++;
 			}}>Next</button>
 			{#if errorMsg}
@@ -281,7 +276,11 @@
 			{/if}
 		</div>
 		{:else if state == 3}
-		<button class="back-btn" on:click={() => state -= 2}>&lt;</button>
+		<button class="back-btn" on:click={() => {
+			state -= 2;
+			puzzleStr = '';
+			puzzle = null;
+		}}>&lt;</button>
 		<div in:fly={{x: -100}} style="display: flex; flex-direction: column; gap: .3em; justify-content: center; align-items: center">
 			<div>
 				<h3 style="margin: 0.5em;">Choose your algorithm:</h3>
@@ -336,22 +335,9 @@
 					puzzleSize = 3
 					puzzle = createPuzzle(puzzleSize).flat()
 					puzzleStr = puzzle.join(' ')
+				} else {
+					puzzleSize = Math.sqrt(puzzle.length)
 				}
-
-				wasmArgs = [
-					algorithmChoice.toString(),
-					heuristicsChoice.toString(),
-					strategyChoice.toString(),
-					puzzleStr
-				]
-
-				loadWasm().then(module => {
-					module.callMain(wasmArgs);
-					if (wasmOutput.length > 0 && wasmOutput[0] == 'SUCCESS')
-						puzzleRes = parseOutputs(wasmOutput)
-					console.log(puzzleRes)
-					state++;
-				});
 
 				clearInterval(movingInterval)
 				cells = puzzle.map((value, i) => {
@@ -362,9 +348,24 @@
 					return { value, x, y }
 				}).filter(x => x);
 				loaded = true;
-				initialState = cells;
+				initialState = JSON.parse(JSON.stringify(cells));
 				solutionState = createSnail(puzzleSize)
 
+				setTimeout(() => {
+					wasmArgs = [
+						algorithmChoice.toString(),
+						heuristicsChoice.toString(),
+						strategyChoice.toString(),
+						puzzleStr
+					]
+
+					loadWasm().then(module => {
+						module.callMain(wasmArgs);
+						if (wasmOutput.length > 0 && wasmOutput[0] == 'SUCCESS')
+							puzzleRes = parseOutputs(wasmOutput)
+						state++;
+					});
+				}, 200);
 
 			}}>Next</button>
 			{#if errorMsg}
@@ -381,15 +382,15 @@
 				<h3 class="solution-title">Summary</h3>
 				<div class="summary-wrapper">
 					<div class="summary-line">
-						<p>Total visited states:</p>
+						<p style="font-size: 14px;">Total visited states:</p>
 						<p>{puzzleRes.TSV}</p>
 					</div>
 					<div class="summary-line">
-						<p>Max number of states:</p>
+						<p style="font-size: 14px;">Max number of states:</p>
 						<p>{puzzleRes.MNS}</p>
 					</div>
 					<div class="summary-line">
-						<p>Time elapsed:</p>
+						<p style="font-size: 14px;">Time elapsed:</p>
 						<p>{puzzleRes.TME}ms</p>
 					</div>
 				</div>
@@ -405,7 +406,7 @@
 				</div>
 			</div>
 			<Player 
-				{playing}
+				bind:playing={playing}
 				on:play={() => {
 					movingInterval = setInterval(() => {
 						if (++solutionIndex>= puzzleRes.SOL.length) {
@@ -433,22 +434,16 @@
 						cells = cells;
 					}, 400)
 				}}
-				on:pause={() => clearInterval(movingInterval)}
+				on:pause={() => {
+					clearInterval(movingInterval);
+				}}
 				on:stop={() => {
 					clearInterval(movingInterval);
 					cells = initialState;
-					solutionIndex = -1;
 					playing = false;
+					solutionIndex = -1;
 					solved = false;
-					solveMsg = '';
-					errorMsg = '';
 				}}/>
-			{#if errorMsg}
-			<p class="msg" style="color: red; font-size: .9rem;">{errorMsg}</p>
-			{/if}
-			{#if solveMsg}
-			<p class="msg" style="color: green; font-size: .9rem;">{solveMsg}</p>
-			{/if}
 		{/if}
 	</div>
 </main>
@@ -570,14 +565,14 @@
 		height: 60%;
 		transform: translateY(10%);
 		background: #fffbeb;
-
+		padding: 1rem;
+		overflow-y: auto;
 	}
 
 	.back-btn {
 		position: absolute;
 		top: 0.2rem; 
 		left: 0.2rem;
-
 	}
 	
 	.summary {
@@ -596,10 +591,18 @@
 	.summary-line p, div {
 		margin: 0;
 	}
+	.summary-line p {
+		background: white;
+	}
+
 	.summary-wrapper {
+		display: flex;
+		flex-direction: column;
 		border: 1px solid black;
 		padding: .5rem;
 		border-radius: .2rem;
+		gap: .2em;
+		width: 100%;
 	}
 
 	.solution-wrapper {
@@ -704,9 +707,14 @@
 		}
 	}
 
+	.msg {
+		position: absolute;
+		/* bottom: .1em; */
+	}
+
 
 	@media (max-width: 820px) {
-		.inputs {
+		.state-manager {
 			display: none;
 		}
 	}

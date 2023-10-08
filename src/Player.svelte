@@ -22,23 +22,6 @@
     </button>
 </div>
 
-<svelte:window
-    on:keydown={(e) => {
-        if (e.code === 'Space')
-            dispatch('play')
-        else if (e.code === 'ArrowLeft')
-            dispatch('prev')
-        else if (e.code === 'ArrowRight')
-            dispatch('next')
-        else if (e.code === 'ArrowUp')
-            dispatch('first')
-        else if (e.code === 'ArrowDown')
-            dispatch('last')
-        else if (e.code === 'Escape')
-            dispatch('stop')
-    }}
-/>
-
 <style>
     .player {
         display: flex;
