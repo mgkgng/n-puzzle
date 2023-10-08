@@ -3,22 +3,13 @@
 	import Player from './Player.svelte';
     import { fly } from 'svelte/transition';
 
-	let puzzleSize = 3;
+	let puzzleSize;
 	let puzzle;
 	let puzzleRes;
 	let errorMsg = '';
 	let solved = false;
 	let thumbX, thumbY
-	let cells = [
-		{ value: 'N', x: 0, y: 0 },
-		{ value: '-', x: 0, y: 1 },
-		{ value: 'P', x: 1, y: 0 },
-		{ value: 'U', x: 1, y: 1 },
-		{ value: 'Z', x: 1, y: 2 },
-		{ value: 'Z', x: 2, y: 0 },
-		{ value: 'L', x: 2, y: 1 },
-		{ value: 'E', x: 2, y: 2 },		
-	]
+	let cells;
 	let initialState;
 	let solutionState;
 	let puzzleStr = '';
@@ -182,8 +173,18 @@
 		});
 	}
 
-	onMount(() => {
-        document.documentElement.style.setProperty('--main', '#ff3e00');
+	function resetInitialAnimation() {
+		puzzleSize = 3;
+		cells = [
+			{ value: 'N', x: 0, y: 0 },
+			{ value: '-', x: 0, y: 1 },
+			{ value: 'P', x: 1, y: 0 },
+			{ value: 'U', x: 1, y: 1 },
+			{ value: 'Z', x: 1, y: 2 },
+			{ value: 'Z', x: 2, y: 0 },
+			{ value: 'L', x: 2, y: 1 },
+			{ value: 'E', x: 2, y: 2 },		
+		]
 		movingInterval = setInterval(() => {
 			const [emptyX, emptyY] = getMissingIndex(cells);
 			const neighbors = getNeighbors(emptyX, emptyY);
@@ -193,6 +194,11 @@
 			prevPos = [emptyX, emptyY];
 			cells = cells
 		}, 800)
+	}
+
+	onMount(() => {
+        document.documentElement.style.setProperty('--main', '#ff3e00');
+		resetInitialAnimation();
 	})
 </script>
 
@@ -224,6 +230,7 @@
 			{/each}
 		</div>
 		{/each}
+		{#if cells}
 		{#each cells as cell}
 		<div class="cell-in"
 			style="
@@ -235,6 +242,7 @@
 			{cell.value}
 		</div>
 		{/each}
+		{/if}
 	</div>
 	<div class="state-manager">
 		{#if state == 0}
@@ -361,9 +369,13 @@
 
 					loadWasm().then(module => {
 						module.callMain(wasmArgs);
-						if (wasmOutput.length > 0 && wasmOutput[0] == 'SUCCESS')
+						if (wasmOutput.length > 0 && wasmOutput[0] == 'SUCCESS') {
 							puzzleRes = parseOutputs(wasmOutput)
-						state++;
+							state++;
+						} else {
+							errorMsg = wasmOutput[1].split('#')[1];
+							state += 2;
+						}
 					});
 				}, 200);
 
@@ -377,7 +389,7 @@
 			<div class="lds-ring"><div></div><div></div><div></div><div></div></div>
 			<p style="color: var(--main); margin: .6rem;">solving...</p>
 		</div>
-		{:else}
+		{:else if state == 5}
 			<div class="summary">
 				<h3 class="solution-title">Summary</h3>
 				<div class="summary-wrapper">
@@ -444,6 +456,17 @@
 					solutionIndex = -1;
 					solved = false;
 				}}/>
+		{:else}
+		<div>
+			<button class="back-btn" on:click={() => {
+				state = 1;
+				puzzleStr = '';
+				puzzle = null;
+				loaded = false;
+				resetInitialAnimation();
+			}}>&lt;</button>
+			<p style="color: red;">{errorMsg}</p>
+		</div>
 		{/if}
 	</div>
 </main>
