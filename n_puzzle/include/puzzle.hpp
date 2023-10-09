@@ -20,7 +20,7 @@
 
 using namespace std;
 
-bool isSolvable(const vector<int>& state, const vector<vector<int>> &curr);
+bool isSolvable(vector<int>& start, const vector<int>& goal);
 int hFunction(int hChoice, const vector<int>& state);
 
 #define VAL(x, max) ((x != max) ? x++ : 0) // The last number of the goal spiral should be 0

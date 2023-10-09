@@ -1,33 +1,36 @@
 #include "puzzle.hpp"
 
-int invCount(const vector<int>& state) {
+int invCount(vector<int>& start, const vector<int>& goal) {
     int count = 0;
-
-    for (int i = 0; i < puzzle->size * puzzle->size; ++i)
-        for (int j = i + 1; j < puzzle->size * puzzle->size; ++j)
-            if (state[i] && state[j] && state[i] > state[j])
-                count++;
+    int idx;
+    for (size_t i = 0; i < start.size(); ++i) {
+        if (start[i] != goal[i]) {
+            idx = find(start.begin(), start.end(), goal[i]) - start.begin();
+            swap(start[i], start[idx]);
+            count++;
+        }
+    }
     return count;
 }
 
-int findXPos(const vector<vector<int>> &curr) {
-    for (int i = puzzle->size - 1; i >= 0; i--)
-        for (int j = puzzle->size - 1; j >= 0; j--)
-            if (curr[i][j] == 0)
-                return puzzle->size - i;
-    return -1;
+pair<int, int> findZeroTile(const vector<int>& matrix) {
+    for (size_t i = 0; i < matrix.size(); ++i)
+        if (matrix[i] == 0)
+            return {i / puzzle->size, i % puzzle->size};
+    return {-1, -1};
 }
 
-bool isSolvable(const vector<int>& state, const vector<vector<int>> &curr) {
-    int inv = invCount(state);
+int manhattan(const vector<int>& start, const vector<int>& goal) {
+    pair<int, int> s, g;
+    s = findZeroTile(start);
+    g = findZeroTile(goal);
+    return abs(gv.first - mv.first) + abs(gv.second - mv.second);
+}
 
-    if (puzzle->size % 2 == 1)
-        return (inv % 2);
-    else {
-        int zeroPos = findXPos(curr);
-        if (zeroPos % 2 == 1)
-            return not (inv % 2);
-        else
-            return (inv % 2);
-    }
+bool isSolvable(vector<int>& start, const vector<int>& goal) {
+    int i = invCount(start, goal);
+    int m = manhattan(start, goal);
+    if (i % 2 == m % 2)
+        return true;
+    return false;
 }

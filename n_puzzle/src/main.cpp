@@ -9,7 +9,7 @@ int main(int ac, const char *av[]) {
 
     puzzle = parse(ac, string(av[4]));
 
-    if (not isSolvable(puzzle->initialGrid, puzzle->grid)) {
+    if (not isSolvable(puzzle->initialGrid, puzzle->goalTest)) {
         cout << "FAILURE" << endl;
         cout << "MSG#" << "Puzzle not solvable." << endl << endl;
         return 1;
