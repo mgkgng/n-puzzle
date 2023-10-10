@@ -24,7 +24,7 @@ int manhattan(const vector<int>& start, const vector<int>& goal) {
     pair<int, int> s, g;
     s = findZeroTile(start);
     g = findZeroTile(goal);
-    return abs(gv.first - mv.first) + abs(gv.second - mv.second);
+    return abs(g.first - s.first) + abs(g.second - s.second);
 }
 
 bool isSolvable(vector<int>& start, const vector<int>& goal) {

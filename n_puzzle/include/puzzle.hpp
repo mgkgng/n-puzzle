@@ -99,7 +99,10 @@ struct Node {
     }
 };
 
-vector<Node *> A_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemory, bool uniformCost, bool greedySearch);
+typedef int (*CostFunction)(const Node&, const vector<int>&, int hChoice);
+int gCost(const Node& curr, const vector<int>& tmp, int hChoice);
+int hCost(const Node& curr, const vector<int>& tmp, int hChoice);
+vector<Node *> A_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemory, CostFunction calculateG, CostFunction calculateH);
 vector<Node *> IDA_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemory);
 
 struct CompareNodes {

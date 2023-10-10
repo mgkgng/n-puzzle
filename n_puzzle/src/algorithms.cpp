@@ -15,7 +15,15 @@ int afterMove(int pos, int dx, int dy) {
     return pos + dx * puzzle->size + dy;
 }
 
-vector<Node *> A_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemory, bool uniformCost, bool greedySearch) {
+int gCost(const Node& curr, const vector<int>& tmp, int hChoice) {
+    return curr.g + 1;
+}
+
+int hCost(const Node& curr, const vector<int>& tmp, int hChoice) {
+    return hFunction(hChoice, tmp);
+}
+
+vector<Node *> A_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemory, CostFunction calculateG, CostFunction calculateH) {
     vector<int> hello;
     for (auto row : puzzle->grid)
         for (auto e : row)
@@ -61,21 +69,8 @@ vector<Node *> A_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemo
 
             if (visitedStates.find(tmp) != visitedStates.end()) continue; // Check if the new state has already been visited to avoid revisiting previously explored states
 
-            int g, h;
-
-            if (uniformCost) {
-                g = curr->g + 1;
-                h = 0;
-            }
-            else if (greedySearch) {
-                g = 0;
-                h = hFunction(hChoice, tmp);
-            }
-            else {
-                g = curr->g + 1;
-                h = hFunction(hChoice, tmp);
-            }
-
+            int g = calculateG(*curr, tmp, hChoice);
+            int h = calculateH(*curr, tmp, hChoice);
             int f = g + h;
 
             Node* newNode = new Node(tmp, moves[i], g, f); // New node with the new state and the corresponding f value

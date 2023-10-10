@@ -23,11 +23,11 @@ int main(int ac, const char *av[]) {
     int maxStatesInMemory = 0;
 
     if (searchChoice == 1 and gChoice == 1)
-        path = A_star(hChoice, totalStatesVisited, maxStatesInMemory, false, false);
+        path = A_star(hChoice, totalStatesVisited, maxStatesInMemory, gCost, hCost);
     else if (searchChoice == 1 and gChoice == 2)
-        path = A_star(hChoice, totalStatesVisited, maxStatesInMemory, true, false);
+        path = A_star(hChoice, totalStatesVisited, maxStatesInMemory, gCost, 0);
     else if (searchChoice == 1 and gChoice == 3)
-        path = A_star(hChoice, totalStatesVisited, maxStatesInMemory, false, true);
+        path = A_star(hChoice, totalStatesVisited, maxStatesInMemory, 0, hCost);
     else if (searchChoice == 2)
         path = IDA_star(hChoice, totalStatesVisited, maxStatesInMemory);
 
