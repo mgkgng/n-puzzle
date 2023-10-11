@@ -1,27 +1,13 @@
 #pragma once
 
 #include <chrono>
-#include <cstdlib>
-#include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <limits>
-#include <stack>
 #include <unordered_set>
-#include <vector>
-#include <sstream> 
-#include <string>
-#include <cmath>
-#include <map>
 #include <queue>
-#include <functional>
-#include <math.h>
 #include <random>
 
 using namespace std;
-
-bool isSolvable(vector<int>& start, const vector<int>& goal);
-int hFunction(int hChoice, const vector<int>& state);
 
 #define VAL(x, max) ((x != max) ? x++ : 0) // The last number of the goal spiral should be 0
 
@@ -29,9 +15,8 @@ const int dx[4] = {-1, 1, 0, 0}; // Possible moves in the x cartesian axis
 const int dy[4] = {0, 0, -1, 1}; // Possible moves in the y cartesian axis
 const char moves[4] = {'U', 'D', 'L', 'R'}; // Char representation of the moves
 
-void printGrid(const vector<vector<int>>& grid);
+// parsing.cpp
 vector<vector<int>> createSnail(int size);
-vector<vector<int>> generate(int size);
 
 class Puzzle {
     public:
@@ -99,21 +84,30 @@ struct Node {
     }
 };
 
-typedef int (*CostFunction)(const Node&, const vector<int>&, int hChoice);
-int gCost(const Node& curr, const vector<int>& tmp, int hChoice);
-int hCost(const Node& curr, const vector<int>& tmp, int hChoice);
-vector<Node *> A_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemory, CostFunction calculateG, CostFunction calculateH);
-vector<Node *> IDA_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemory);
-
 struct CompareNodes {
     bool operator()(const Node* left, const Node* right) const {
         return left->f > right->f;
     }
 };
 
-extern unique_ptr<Puzzle> puzzle;
+// algorithms.cpp
+typedef int (*CostFunction)(const Node&, const vector<int>&, int hChoice);
+int gCost(const Node& curr, const vector<int>& tmp, int hChoice);
+int hCost(const Node& curr, const vector<int>& tmp, int hChoice);
+vector<Node *> A_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemory, CostFunction calculateG, CostFunction calculateH);
+vector<Node *> IDA_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemory);
 
+// heuristic.cpp
+int hFunction(int hChoice, const vector<int>& state);
+
+// parsing.cpp
+extern unique_ptr<Puzzle> puzzle;
 unique_ptr<Puzzle> parse(const int ac, string puzzleStr);
+void printGrid(const vector<vector<int>>& grid);
+vector<vector<int>> generate(int size);
+
+// solvable.cpp
+bool isSolvable(vector<int>& start, const vector<int>& goal);
 
 inline ostream& operator<<(ostream& os, const Puzzle& p) {
     os << "Initial Grid (" << p.size << "x" << p.size << "):"<< endl;

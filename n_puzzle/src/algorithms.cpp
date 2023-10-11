@@ -1,13 +1,25 @@
 #include "puzzle.hpp"
 
-int findZero(const vector<int> &curr) {
+/**
+ * Finds the index of the zero element in a given vecto of integers.
+ * @param curr The vector to search for the zero element.
+ * @return The index of the zero element in the vector.
+ */
+static int findZero(const vector<int> &curr) {
     for (int i = 0; i < puzzle->size * puzzle->size; i++)
         if (curr[i] == 0)
             return i;
     return -1;
 }
 
-int afterMove(int pos, int dx, int dy) {
+/**
+ * Calculates the new position of a tile after a move is made.
+ * @param pos The current position of the tile.
+ * @param dx The horizontal distance to move the tile.
+ * @param dy The vertical distance to move the tile.
+ * @return The new position of the tile.
+ */
+static int afterMove(int pos, int dx, int dy) {
     int row = pos / puzzle->size;
     int col = pos % puzzle->size;
     if (not (row + dx >= 0 && row + dx < puzzle->size && col + dy >= 0 && col + dy < puzzle->size))
@@ -15,14 +27,43 @@ int afterMove(int pos, int dx, int dy) {
     return pos + dx * puzzle->size + dy;
 }
 
+/**
+ * Calculates the cost of the path from the start node to the current node.
+ * @param curr The current node.
+ * @param tmp The current state of the puzzle.
+ * @param hChoice The heuristic function to use.
+ * @return The cost of the path from the start node to the current node.
+ */
 int gCost(const Node& curr, const vector<int>& tmp, int hChoice) {
     return curr.g + 1;
 }
 
+/**
+ * Calculates the heuristic cost of a given node based on the chosen heuristic function.
+ * @param curr The current node to calculate the heuristic cost for.
+ * @param tmp The goal state of the puzzle.
+ * @param hChoice The chosen heuristic function.
+ * @return The heuristic cost of the current node.
+ */
 int hCost(const Node& curr, const vector<int>& tmp, int hChoice) {
     return hFunction(hChoice, tmp);
 }
 
+/**
+ * Runs the A* search algorithm on the N-Puzzle problem using the specified
+ * heuristic function and cost functions to calculate the cost of each node.
+ * @param hChoice The choice of heuristic function to use.
+ * @param totalStatesVisited A reference to an integer that will be updated with
+ *                           the total number of states visited during the search.
+ * @param maxStatesInMemory A reference to an integer that will be updated with
+ *                          the maximum number of states held in memory at any
+ *                          point during the search.
+ * @param calculateG The cost function to use for calculating the cost of the
+ *                   path from the start node to the current node.
+ * @param calculateH The heuristic function to use for estimating the cost of
+ *                   the path from the current node to the goal node.
+ * @return A empty vector if no solution is found, otherwise a vector of nodes
+ */
 vector<Node *> A_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemory, CostFunction calculateG, CostFunction calculateH) {
     vector<int> hello;
     for (auto row : puzzle->grid)
@@ -83,7 +124,19 @@ vector<Node *> A_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemo
     return vector<Node*>(); // Return empty vector if no solution is found
 }
 
-int search(Node* curr, int g, int threshold, int hChoice, int &totalStatesVisited, int &maxStatesInMemory, unordered_set<vector<int>, VectorHash>& visitedStates, vector<Node*>& path) {
+/**
+ * Performs an IDA* search algorithm (a variation of A* that uses iterative deepening).
+ * @param curr The current node being explored.
+ * @param g The cost of the path from the start node to the current node.
+ * @param threshold The maximum cost allowed to explore a node.
+ * @param hChoice The heuristic function to use.
+ * @param totalStatesVisited The total number of states visited during the search.
+ * @param maxStatesInMemory The maximum number of states held in memory during the search.
+ * @param visitedStates A set of visited states to avoid exploring the same state twice.
+ * @param path A vector of nodes representing the path from the start node to the current node.
+ * @return The cost of the optimal solution or -1 if no solution is found.
+ */
+static int search(Node* curr, int g, int threshold, int hChoice, int &totalStatesVisited, int &maxStatesInMemory, unordered_set<vector<int>, VectorHash>& visitedStates, vector<Node*>& path) {
     
     if (visitedStates.find(curr->state) != visitedStates.end()) return numeric_limits<int>::max(); // Return a high value to prune this path since it has already been visited
     visitedStates.insert(curr->state); // Mark the current state as visited
@@ -128,6 +181,13 @@ int search(Node* curr, int g, int threshold, int hChoice, int &totalStatesVisite
     return min;
 }
 
+/**
+ * Performs the IDA* search algorithm on the N-Puzzle problem.
+ * @param hChoice An integer representing the heuristic function to use.
+ * @param totalStatesVisited A reference to an integer that will be updated with the total number of states visited during the search.
+ * @param maxStatesInMemory A reference to an integer that will be updated with the maximum number of states held in memory at any point during the search.
+ * @return A vector of pointers to Node objects representing the solution path, or an empty vector if no solution was found.
+ */
 vector<Node *> IDA_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemory) {
     vector<int> hello;
     for (auto row : puzzle->grid)
