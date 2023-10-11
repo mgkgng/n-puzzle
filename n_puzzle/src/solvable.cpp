@@ -1,4 +1,4 @@
-#include "puzzle.hpp"
+#include "solvable.hpp"
 
 /**
  * Calculates the number of inversions required to transform a given vector of integers into a goal vector.

@@ -1,4 +1,4 @@
-#include "puzzle.hpp"
+#include "heuristic.hpp"
 
 /**
  * Calculates the Manhattan distance heuristic for the given state with respect to the goal state.

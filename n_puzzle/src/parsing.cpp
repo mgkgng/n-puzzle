@@ -1,4 +1,4 @@
-#include "puzzle.hpp"
+#include "parsing.hpp"
 
 /**
  * Parses a string representation of a puzzle and returns a unique_ptr to a Puzzle object.

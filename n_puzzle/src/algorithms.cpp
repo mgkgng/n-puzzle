@@ -1,4 +1,4 @@
-#include "puzzle.hpp"
+#include "algorithms.hpp"
 
 /**
  * Finds the index of the zero element in a given vecto of integers.
