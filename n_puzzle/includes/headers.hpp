@@ -32,7 +32,7 @@ vector<Node *> IDA_star(int hChoice, int &totalStatesVisited, int &maxStatesInMe
 int hFunction(int hChoice, const vector<int>& state);
 
 // parsing.cpp
-unique_ptr<Puzzle> parse(const int ac, string puzzleStr);
+unique_ptr<Puzzle> parse(string puzzleStr);
 void printGrid(const vector<vector<int>>& grid);
 vector<vector<int>> generate(int size);
 vector<string> split(const string &str);

@@ -7,7 +7,7 @@ int main(int ac, const char *av[]) {
     int hChoice = atoi(av[2]);
     int gChoice = atoi(av[3]);
 
-    puzzle = parse(ac, string(av[4]));
+    puzzle = parse(string(av[4]));
 
     if (not isSolvable(puzzle->initialGrid, puzzle->goalTest)) {
         cout << "FAILURE" << endl;

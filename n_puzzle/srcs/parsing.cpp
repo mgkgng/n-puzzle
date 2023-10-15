@@ -2,11 +2,10 @@
 
 /**
  * Parses a string representation of a puzzle and returns a unique_ptr to a Puzzle object.
- * @param ac The number of arguments passed to the program.
  * @param puzzleStr The string representation of the puzzle.
  * @return A unique_ptr to a Puzzle object.
  */
-unique_ptr<Puzzle> parse(const int ac, string puzzleStr) {
+unique_ptr<Puzzle> parse(string puzzleStr) {
     unique_ptr<Puzzle> res;
 
     auto cells = split(puzzleStr);

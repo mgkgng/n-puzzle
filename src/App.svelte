@@ -342,7 +342,10 @@
 					<input type="radio" id="a" bind:group={algorithmChoice} value={1}>
 					<label class="radio-label" for="a">A*</label>
 					<input type="radio" id="ida" bind:group={algorithmChoice} value={2}>
-					<label class="radio-label" for="ida">Iterative Deepening A*</label>
+					<label class="radio-label" for="ida" on:click={() => {
+						if (strategyChoice != 1)
+							strategyChoice = 0;
+					}}>Iterative Deepening A*</label>
 				</div>
 			</div>
 			<div>
@@ -363,10 +366,10 @@
 				<div class="strategy">
 					<input type="radio" id="std" bind:group={strategyChoice} value={1}>
 					<label class="radio-label" for="std">Standard</label>
-					<input type="radio" id="uc" bind:group={strategyChoice} value={2}>
-					<label class="radio-label" for="uc">Uniform-Cost</label>
-					<input type="radio" id="gdy" bind:group={strategyChoice} value={3}>
-					<label class="radio-label" for="gdy">Greedy</label>
+					<input type="radio" id="uc" bind:group={strategyChoice} value={2} disabled={algorithmChoice === 2}>
+					<label class="radio-label {algorithmChoice === 2 ? "disabled" : ""}" for="uc">Uniform-Cost</label>
+					<input type="radio" id="gdy" bind:group={strategyChoice} value={3} disabled={algorithmChoice === 2}>
+					<label class="radio-label {algorithmChoice === 2 ? "disabled" : ""}" for="gdy">Greedy</label>
 				</div>
 			</div>
 			<button style="margin-top: 1.2em; width: 6rem;" on:click={() => {
@@ -779,6 +782,12 @@
 	.msg {
 		position: absolute;
 		/* bottom: .1em; */
+	}
+
+	.disabled {
+		background: #666;
+		color: #aaa;
+		border-color: #aaa;
 	}
 
 
