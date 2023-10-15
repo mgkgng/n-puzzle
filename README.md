@@ -1,8 +1,10 @@
 # N-Puzzle 🧩
 
-![preview](/assets/npuzzle.gif)
 > **“Who in the world am I? Ah, that's the great puzzle.”**
 > ― Lewis Carroll, Alice in Wonderland
+
+![preview](/assets/npuzzle.gif)
+
 
 ## Project Overview 🔎
 ### Objectifs
