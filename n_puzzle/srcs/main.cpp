@@ -1,9 +1,4 @@
-#include <chrono>
-#include <numeric>
-
-#include "parsing.hpp"
-#include "algorithms.hpp"
-#include "solvable.hpp"
+#include "headers.hpp"
 
 unique_ptr<Puzzle> puzzle;
 

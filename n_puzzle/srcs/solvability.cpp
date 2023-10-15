@@ -1,21 +1,17 @@
-#include "solvable.hpp"
+#include "headers.hpp"
 
 /**
- * Calculates the number of inversions required to transform a given vector of integers into a goal vector.
- * @param start The vector of integers to calculate the inversion count for.
- * @param goal The goal vector of integers to compare against.
- * @return The inversion count of the start vector with respect to the goal vector.
+ * Calculates the inversion count based on the given start and goal states.
+ * @param start The starting vector.
+ * @param goal The goal vector.
+ * @return The inversion count between the two vectors.
  */
-static int invCount(vector<int>& start, const vector<int>& goal) {
+static int invCount(const vector<int>& start, const vector<int>& goal) {
     int count = 0;
-    int idx;
-    for (size_t i = 0; i < start.size(); ++i) {
-        if (start[i] != goal[i]) {
-            idx = find(start.begin(), start.end(), goal[i]) - start.begin();
-            swap(start[i], start[idx]);
-            count++;
-        }
-    }
+    for (size_t i = 0; i < start.size(); ++i)
+        for (size_t j = i; j < start.size(); ++j)
+            if (find(goal.begin(), goal.end(), start[i]) > find(goal.begin(), goal.end(), start[j]))
+                count++;
     return count;
 }
 

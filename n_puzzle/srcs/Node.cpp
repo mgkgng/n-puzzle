@@ -12,3 +12,7 @@ Node::Node(vector<int> _state, char _move, int _g, int _f) {
     f = _f;
     parent = nullptr;
 }
+
+bool CompareNodes::operator()(const Node* left, const Node* right) const {
+    return left->f > right->f;
+}

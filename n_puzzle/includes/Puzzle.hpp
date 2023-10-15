@@ -23,3 +23,5 @@ public:
 
     friend ostream& operator<<(ostream& os, const Puzzle& p);
 };
+
+extern unique_ptr<Puzzle> puzzle;

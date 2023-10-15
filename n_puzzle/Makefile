@@ -1,11 +1,11 @@
 CXX = g++
-CXXFLAGS = -std=c++20 -Wall -Iinclude
+CXXFLAGS = -std=c++20 -Wall -Iincludes
 
-SRC_DIR = src
-OBJ_DIR = obj
+SRCS_DIR = srcs
+OBJS_DIR = objs
 
-SOURCES = $(wildcard src/*.cpp)
-OBJECTS = $(SOURCES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
+SOURCES = $(wildcard srcs/*.cpp)
+OBJECTS = $(SOURCES:$(SRCS_DIR)/%.cpp=$(OBJS_DIR)/%.o)
 
 EXEC = n_puzzle
 
@@ -14,17 +14,17 @@ WASM_DIR = ../public/wasm
 WASM_EXEC = n_puzzle_wasm
 WASM_FLAGS = -s WASM=1 -s "EXPORTED_RUNTIME_METHODS=['callMain']" -s INVOKE_RUN=0 -sALLOW_MEMORY_GROWTH=1 -s EXIT_RUNTIME=1 
 
-# all: $(OBJ_DIR) $(EXEC)
+# all: $(OBJS_DIR) $(EXEC)
 all : app
 
 $(EXEC): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+$(OBJS_DIR)/%.o: $(SRCS_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
+$(OBJS_DIR):
+	mkdir -p $(OBJS_DIR)
 
 app: $(WASM_DIR)
 	emcc $(CXXFLAGS) $(WASM_FLAGS) -o $(WASM_DIR)/$(WASM_EXEC).js $(SOURCES) -O3
@@ -33,7 +33,7 @@ $(WASM_DIR):
 	mkdir -p $(WASM_DIR) 
 
 clean:
-	rm -rf $(OBJ_DIR) $(WASM_DIR)
+	rm -rf $(OBJS_DIR) $(WASM_DIR)
 
 fclean: clean
 	rm -rf $(EXEC)

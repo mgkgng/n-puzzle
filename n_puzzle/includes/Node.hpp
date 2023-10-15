@@ -16,7 +16,5 @@ struct Node {
 };
 
 struct CompareNodes {
-    bool operator()(const Node* left, const Node* right) const {
-        return left->f > right->f;
-    }
+    bool operator()(const Node* left, const Node* right) const;
 };
