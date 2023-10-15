@@ -44,6 +44,10 @@
 	let wasmOutput = []
 	let wasmArgs = []
 
+	let selectedFile = null;
+    let fileContents = '';
+	let fileInputElem;
+
 	function back() {
 		state--;
 		errorMsg = "";
@@ -105,6 +109,35 @@
 			++colStart;
 		}
 		return res;
+	}
+
+	function verifyPuzzleFile(size, arr) {
+		if (size < 2 || arr.length < 4) {
+			errorMsg = 'Puzzle should be n x n size (n > 1)';
+			return false;
+		}
+		if (size * size !== arr.length) {
+			errorMsg = 'Puzzle size does not match';
+			return false;
+		}
+		return true;
+	}
+
+	function parsePuzzleFile(str) {
+		let res = '';
+		let size = 0;
+		let lines = str.split('\n');
+		for (let line of lines) {
+			if (line.startsWith('#'))
+				continue;
+			else if (!size) {
+				size = parseInt(line);
+				continue;
+			} else {
+				res = [...res, ...line.split(' ').filter(x => x.length)]
+			}
+		}
+		return verifyPuzzleFile(size, res) ? res.join(' ') : null;
 	}
 
 	function createPuzzle(size) {
@@ -252,35 +285,45 @@
 			<h2>Puzzle?</h2>
 			<div style="display: flex; gap: .2em;">
 				<button on:click={() => state += 2}>generate</button>
-				<button on:click={() => state++}>parse</button>
+				<button on:click={() => state++}>load</button>
 			</div>
 		</div>
 		{:else if state == 2}
 		<button class="back-btn" on:click={back}>&lt;</button>
-		<div in:fly={{x: -100}}>
-			<h2>Your puzzle in string:</h2>
-			<input type="text" bind:value={puzzleStr}>
-			<button on:click={() => {
+		<div in:fly={{x: -100}} style="display: flex; flex-direction: column; gap: .4rem; justify-items: center; align-items: center;">
+			<input hidden type="file" accept=".txt" on:change={(e) => {
+				const files = e.target.files;
+				selectedFile = files.length === 0 ? null : files[0];
+			}} 
+				bind:this={fileInputElem}
+			/>
+			<button style="background: none; border: 2px solid var(--main); color: var(--main);"on:click={() => fileInputElem.click()}>choose file (.txt)</button>
+			<button style="width: 5em;" on:click={() => {
 				errorMsg = '';
 
-				if (!puzzleStr.length) {
-					errorMsg = 'Please fill in the field.';
+				if (!selectedFile) {
+					errorMsg = "No file selected.";
 					return;
 				}
 
-				puzzle = puzzleStr.split(' ').filter(x => x.length).map(x => parseInt(x));
-				puzzleStr = puzzle.join(' ');
-
-				const size = isSqrd(puzzle.length);
-				if (size < 0) {
-					errorMsg = 'Puzzle should be n x n size (n > 1)';
-					return;
-				}
-				// puzzleSize = size;
-				state++;
+				const reader = new FileReader();
+				reader.onload = (e) => {
+					fileContents = e.target.result;
+					const parsed = parsePuzzleFile(fileContents);
+					if (!parsed)
+						return;
+					puzzleStr = parsed;
+					puzzle = puzzleStr.split(' ').filter(x => x.length).map(x => parseInt(x));
+					state++;
+				};
+				reader.onerror = (event) => {
+					console.error("File reading error: ", event);
+					errorMsg = 'File reading error';
+				};
+				reader.readAsText(selectedFile);
 			}}>Next</button>
 			{#if errorMsg}
-			<p class="msg" style="color: red; font-size: .9rem;">{errorMsg}</p>
+			<p class="msg" style="color: red; font-size: .9rem; top: 55%;">{errorMsg}</p>
 			{/if}
 		</div>
 		{:else if state == 3}
@@ -288,6 +331,9 @@
 			state -= 2;
 			puzzleStr = '';
 			puzzle = null;
+			fileContents = '';
+			errorMsg = '';
+			selectedFile = null;
 		}}>&lt;</button>
 		<div in:fly={{x: -100}} style="display: flex; flex-direction: column; gap: .3em; justify-content: center; align-items: center">
 			<div>
