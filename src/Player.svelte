@@ -49,11 +49,5 @@
         height: 1.2rem;
 
     }
-    /* .player {
-        @apply flex gap-2 w-full justify-center items-center;
-    }
-    .play-button {
-        @apply w-12 h-12 bg-teal-400 p-2 rounded-md hover:brightness-110;
-    } */
 </style>
 
