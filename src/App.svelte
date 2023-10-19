@@ -284,8 +284,8 @@
 		<div in:fly={{x: -100}} style="transform: translateY(-25%);">
 			<h2>Puzzle?</h2>
 			<div style="display: flex; gap: .2em;">
-				<button on:click={() => state += 2}>generate</button>
-				<button on:click={() => state++}>load</button>
+				<button on:click={() => state += 2}>Generate</button>
+				<button on:click={() => state++}>Load</button>
 			</div>
 		</div>
 		{:else if state == 2}
@@ -297,7 +297,7 @@
 			}} 
 				bind:this={fileInputElem}
 			/>
-			<button style="background: none; border: 2px solid var(--main); color: var(--main);"on:click={() => fileInputElem.click()}>choose file (.txt)</button>
+			<button style="background: none; border: 2px solid var(--main); color: var(--main);"on:click={() => fileInputElem.click()}>Choose .txt file</button>
 			<button style="width: 5em;" on:click={() => {
 				errorMsg = '';
 
@@ -343,8 +343,11 @@
 					<label class="radio-label" for="a">A*</label>
 					<input type="radio" id="ida" bind:group={algorithmChoice} value={2}>
 					<label class="radio-label" for="ida" on:click={() => {
-						if (strategyChoice != 1)
-							strategyChoice = 0;
+					if (strategyChoice != 1)
+						strategyChoice = 0;
+					}} on:keydown={() => {
+					if (strategyChoice != 1)
+						strategyChoice = 0;
 					}}>Iterative Deepening A*</label>
 				</div>
 			</div>

@@ -10,18 +10,16 @@ vector<vector<int>> createSnail(int size);
 
 class Puzzle {
 public:
-    int size;
-    vector<vector<int>> grid;
-    vector<vector<int>> goalGrid;
-    vector<int> initialGrid;
-    vector<int> goalTest;
-    vector<pair<int, int>> goalCoordinates;
+    int size; // The size (N) of the puzzle.
+    vector<vector<int>> goalState; // 2D vector representing the goal state of the puzzle.
+    vector<int> flattenStartState; // 1D vector representing the flattened start state of the puzzle.
+    vector<int> flattenGoalState; // 1D vector representing the flattened goal state of the puzzle.
+    vector<pair<int, int>> goalCoordinates; // 1D vector representing the coordinates of each tile in the goal state of the puzzle.
 
     Puzzle();
     Puzzle(int _size);
     ~Puzzle();
 
-    friend ostream& operator<<(ostream& os, const Puzzle& p);
 };
 
 extern unique_ptr<Puzzle> puzzle;

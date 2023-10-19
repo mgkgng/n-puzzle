@@ -25,6 +25,7 @@ const char moves[4] = {'U', 'D', 'L', 'R'};
 typedef int (*CostFunction)(const Node&, const vector<int>&, int hChoice);
 int gCost(const Node& curr, const vector<int>& tmp, int hChoice);
 int hCost(const Node& curr, const vector<int>& tmp, int hChoice);
+int zeroCost(const Node& curr, const vector<int>& tmp, int hChoice);
 vector<Node *> A_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemory, CostFunction calculateG, CostFunction calculateH);
 vector<Node *> IDA_star(int hChoice, int &totalStatesVisited, int &maxStatesInMemory);
 
@@ -32,16 +33,13 @@ vector<Node *> IDA_star(int hChoice, int &totalStatesVisited, int &maxStatesInMe
 int hFunction(int hChoice, const vector<int>& state);
 
 // parsing.cpp
-unique_ptr<Puzzle> parse(string puzzleStr);
-void printGrid(const vector<vector<int>>& grid);
-vector<vector<int>> generate(int size);
 vector<string> split(const string &str);
+unique_ptr<Puzzle> parse(string puzzleStr);
 
 // solvability.cpp
 bool isSolvable(vector<int>& start, const vector<int>& goal);
 
 // utilities.cpp
-vector<string> split(const string &str);
 int myAbs(int x);
 struct VectorHash {
 	size_t operator()(const vector<int>& vec) const;

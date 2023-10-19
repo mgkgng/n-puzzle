@@ -1,5 +1,16 @@
 #include "headers.hpp"
 
+vector<string> split(const string &str) {
+    istringstream iss(str);
+    vector<string> res;
+    string token;
+
+    while (iss >> token)
+        res.push_back(token);
+
+    return res;
+}
+
 /**
  * Parses a string representation of a puzzle and returns a unique_ptr to a Puzzle object.
  * @param puzzleStr The string representation of the puzzle.
@@ -7,28 +18,14 @@
  */
 unique_ptr<Puzzle> parse(string puzzleStr) {
     unique_ptr<Puzzle> res;
-
     auto cells = split(puzzleStr);
     int size = sqrt(cells.size());
     res = make_unique<Puzzle>(size);
-    for (size_t i = 0; i < cells.size(); i++) {
-        res->grid[i / size][i % size] = stoi(cells[i]);
-        res->initialGrid.push_back(stoi(cells[i]));
-    }
-    return res;
-}
+    
+    for (size_t i = 0; i < cells.size(); i++)
+        res->flattenStartState.push_back(stoi(cells[i]));
 
-/**
- * Prints the contents of a 2D vector representing a grid of integers.
- * @param grid The 2D vector representing the grid to print.
- */
-inline void printGrid(const vector<vector<int>>& grid) {
-    for (const auto& row : grid) {
-        for (int val : row)
-            cout << setw(4) << val;
-        cout << endl;
-    }
-    cout << endl;
+    return res;
 }
 
 /**
@@ -44,7 +41,7 @@ vector<vector<int>> createSnail(int size) {
     int rowStart = 0, rowEnd = size - 1;
     int colStart = 0, colEnd = size - 1;
 
-    while (rowStart <= rowEnd && colStart <= colEnd) {
+    while (rowStart <= rowEnd and colStart <= colEnd) {
         for (int j = colStart; j <= colEnd; ++j)
             res[rowStart][j] = VAL(val, max);
         ++rowStart;
@@ -61,43 +58,6 @@ vector<vector<int>> createSnail(int size) {
             res[i][colStart] = VAL(val, max);
         ++colStart;
     }
+
     return res;
-}
-
-/**
- * Generates a square 2D vector of integers with the given size.
- * @param size The size of the square 2D vector to generate.
- * @return A square 2D vector of integers with the given size.
- */
-vector<vector<int>> generate(int size) {
-    cout << "Generating 4 x 4 random puzzle..." << endl;
-    random_device rd;
-    mt19937 gen(rd());
-
-    auto grid = createSnail(size);
-    pair<int, int> zeroPos;
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            if (grid[i][j] == 0) {
-                zeroPos = make_pair(i, j);
-                break;
-            }
-        }
-    }
-    
-    vector<int> dirIndices = vector<int>();
-    for (int iter = 0; iter < 3000; iter++) {
-        dirIndices.clear();
-        if (zeroPos.first > 0) dirIndices.push_back(0);
-        if (zeroPos.first < size - 1) dirIndices.push_back(1);
-        if (zeroPos.second > 0) dirIndices.push_back(2);
-        if (zeroPos.second < size - 1) dirIndices.push_back(3); 
-
-        std::uniform_int_distribution<> distrib(0, dirIndices.size() - 1);
-        int dirIndex = dirIndices[distrib(gen)];
-        swap(grid[zeroPos.first + dx[dirIndex]][zeroPos.second + dy[dirIndex]], grid[zeroPos.first][zeroPos.second]);
-        zeroPos.first += dx[dirIndex];
-        zeroPos.second += dy[dirIndex];
-    }
-    return grid;
 }

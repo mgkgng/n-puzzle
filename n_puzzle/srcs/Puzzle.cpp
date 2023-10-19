@@ -3,32 +3,21 @@
 Puzzle::Puzzle() {}
 
 Puzzle::Puzzle(int _size) {
-    size = _size;
-    grid = vector<vector<int>>(_size, vector<int>(_size, 0));
-    goalGrid = createSnail(size);
 
-    for (auto row : goalGrid) {
+    size = _size; // The size (N) of the puzzle.
+
+    goalState = createSnail(size); // 2D vector representing the goal state of the puzzle.
+    for (auto row : goalState)
         for (auto e : row)
-            goalTest.push_back(e);
-    }
+            flattenGoalState.push_back(e); // 1D vector representing the flattened goal state of the puzzle.
 
-    goalCoordinates = vector<pair<int, int>>(size * size);
+    goalCoordinates = vector<pair<int, int>>(size * size); // 1D vector representing the coordinates of each tile in the goal state of the puzzle.
     for (int i = 0; i < size; ++i) {
         for (int j = 0; j < size; ++j) {
-            int val = goalGrid[i][j];
+            int val = goalState[i][j];
             goalCoordinates[val] = {i, j};
         }
     }
 }
 
 Puzzle::~Puzzle() {}
-
-ostream& operator<<(ostream& os, const Puzzle& p) {
-    os << "Initial Grid (" << p.size << "x" << p.size << "):"<< endl;
-    for (const auto& row : p.grid) {
-        for (const auto& cell : row)
-            os << setw(4) << cell;
-        os << endl;
-    }
-    return os;
-}
